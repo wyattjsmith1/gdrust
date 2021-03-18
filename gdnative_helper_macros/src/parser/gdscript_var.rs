@@ -1,6 +1,6 @@
 use syn::parse::{Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
-use syn::{parenthesized, Ident, Lit, Token, Type};
+use syn::{parenthesized, Ident, Lit, LitStr, Token, Type};
 use syn::{token, Expr};
 
 mod kw {
@@ -10,6 +10,14 @@ mod kw {
     syn::custom_keyword!(var);
     syn::custom_keyword!(no_export);
     syn::custom_keyword!(export_range);
+    syn::custom_keyword!(export_enum);
+    syn::custom_keyword!(export_file);
+    syn::custom_keyword!(export_dir);
+    syn::custom_keyword!(export_global_file);
+    syn::custom_keyword!(export_global_dir);
+    syn::custom_keyword!(export_multiline);
+    syn::custom_keyword!(export_exp_range);
+    syn::custom_keyword!(export_color_no_alpha);
 }
 
 #[derive(Clone)]
@@ -18,6 +26,14 @@ pub enum ExportType {
     NoExport(NoExport),
     Export(Export),
     ExportRange(ExportRange),
+    ExportExpRange(ExportExpRange),
+    ExportEnum(ExportEnum),
+    ExportFile(ExportFile),
+    ExportDir(ExportDir),
+    ExportGlobalFile(ExportGlobalFile),
+    ExportGlobalDir(ExportGlobalDir),
+    ExportMultiline(ExportMultiline),
+    ExportColorNoAlpha(ExportColorNoAlpha),
 }
 
 #[derive(Clone)]
@@ -38,6 +54,60 @@ pub struct ExportRange {
     pub export: kw::export_range,
     pub paren_token: token::Paren,
     pub range: Punctuated<Lit, Token![,]>,
+}
+
+#[derive(Clone)]
+pub struct ExportExpRange {
+    pub at: Token![@],
+    pub export: kw::export_exp_range,
+    pub paren_token: token::Paren,
+    pub range: Punctuated<Lit, Token![,]>,
+}
+
+#[derive(Clone)]
+pub struct ExportEnum {
+    pub at: Token![@],
+    pub export: kw::export_enum,
+    pub paren_token: token::Paren,
+    pub values: Punctuated<LitStr, Token![,]>,
+}
+
+#[derive(Clone)]
+pub struct ExportFile {
+    pub at: Token![@],
+    pub export_file: kw::export_file,
+    pub filter: Option<(token::Paren, LitStr)>,
+}
+
+#[derive(Clone)]
+pub struct ExportGlobalFile {
+    pub at: Token![@],
+    pub export_global_file: kw::export_global_file,
+    pub filter: Option<(token::Paren, LitStr)>,
+}
+
+#[derive(Clone)]
+pub struct ExportDir {
+    pub at: Token![@],
+    pub export_dir: kw::export_dir,
+}
+
+#[derive(Clone)]
+pub struct ExportGlobalDir {
+    pub at: Token![@],
+    pub export_dir: kw::export_global_dir,
+}
+
+#[derive(Clone)]
+pub struct ExportMultiline {
+    pub at: Token![@],
+    pub export_multiline: kw::export_multiline,
+}
+
+#[derive(Clone)]
+pub struct ExportColorNoAlpha {
+    pub at: Token![@],
+    pub export_color_no_alpha: kw::export_color_no_alpha,
 }
 
 #[derive(Clone)]
@@ -89,8 +159,70 @@ impl Parse for ExportType {
                 paren_token: parenthesized!(content in input),
                 range: content.parse_terminated(Lit::parse)?,
             }))
+        } else if input.peek(kw::export_exp_range) {
+            let content;
+            Ok(ExportType::ExportExpRange(ExportExpRange {
+                at,
+                export: input.parse()?,
+                paren_token: parenthesized!(content in input),
+                range: content.parse_terminated(Lit::parse)?,
+            }))
+        } else if input.peek(kw::export_enum) {
+            let content;
+            Ok(ExportType::ExportEnum(ExportEnum {
+                at,
+                export: input.parse()?,
+                paren_token: parenthesized!(content in input),
+                values: content.parse_terminated(<LitStr as Parse>::parse)?,
+            }))
+        } else if input.peek(kw::export_file) {
+            let export_file = input.parse()?;
+            let filter = if input.peek(token::Paren) {
+                let contents;
+                Some((parenthesized!(contents in input), contents.parse()?))
+            } else {
+                None
+            };
+            Ok(ExportType::ExportFile(ExportFile {
+                at,
+                export_file,
+                filter,
+            }))
+        } else if input.peek(kw::export_dir) {
+            Ok(ExportType::ExportDir(ExportDir {
+                at,
+                export_dir: input.parse()?,
+            }))
+        } else if input.peek(kw::export_global_file) {
+            let export_global_file = input.parse()?;
+            let filter = if input.peek(token::Paren) {
+                let contents;
+                Some((parenthesized!(contents in input), contents.parse()?))
+            } else {
+                None
+            };
+            Ok(ExportType::ExportGlobalFile(ExportGlobalFile {
+                at,
+                export_global_file,
+                filter,
+            }))
+        } else if input.peek(kw::export_global_dir) {
+            Ok(ExportType::ExportGlobalDir(ExportGlobalDir {
+                at,
+                export_dir: input.parse()?,
+            }))
+        } else if input.peek(kw::export_multiline) {
+            Ok(ExportType::ExportMultiline(ExportMultiline {
+                at,
+                export_multiline: input.parse()?,
+            }))
+        } else if input.peek(kw::export_color_no_alpha) {
+            Ok(ExportType::ExportColorNoAlpha(ExportColorNoAlpha {
+                at,
+                export_color_no_alpha: input.parse()?,
+            }))
         } else {
-            Err(input.error("Expected an export type"))
+            Err(input.error("Expected a valid export type"))
         }
     }
 }

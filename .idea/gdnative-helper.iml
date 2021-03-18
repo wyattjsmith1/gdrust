@@ -22,6 +22,7 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/proc-macro2-4b05635d909d3192/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/ryu-8a60f63e3dbbc510/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-f0aedcea2a00fded/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/comprehensive_example/rust/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

@@ -51,15 +51,24 @@ fn builder_for_var(var: &GdScriptVar) -> TokenStream {
     }
     let ty = &var.ty;
     let ident = &var.var_name;
+    let default = &var.value;
     let ident_str = ident.to_string();
     let hint = property_hint(&var.export, &var.ty);
-    let setter = quote::quote! { .with_setter(|this, _owner, val| this.#ident = val)};
-    let getter = quote::quote! { .with_getter(|this, _owner| this.#ident.clone())};
+    let setter = quote::quote! { .with_setter(|this, _owner, val| {
+        gdnative::godot_print!("Setting {:?} = {:?}", &#ident_str, &val);
+        this.#ident = val
+    })};
+    let getter = quote::quote! { .with_getter(|this, _owner| {
+        gdnative::godot_print!("Getting {:?} = {:?}", &#ident_str, &this.#ident);
+        this.#ident.clone()
+    })};
+    let default = quote::quote! { .with_default(#default) };
     quote::quote! {
         builder.add_property::<#ty>(#ident_str)
             #hint
             #getter
             #setter
+            #default
             .done();
     }
 }

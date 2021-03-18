@@ -1,8 +1,9 @@
 [package]
-name = "gdnative-helper"
+name = "gdnative_helper"
 version = "0.1.0"
 authors = ["Wyatt Smith <wys@yelp.com>"]
 edition = "2018"
 
 [dependencies]
 gdnative = "0.9"
+gdnative_helper_macros = { path = "../gdnative_helper_macros" }

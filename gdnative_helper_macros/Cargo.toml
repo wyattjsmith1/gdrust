@@ -1,5 +1,5 @@
 [package]
-name = "gdnative-helper-macros"
+name = "gdnative_helper_macros"
 version = "0.1.0"
 authors = ["Wyatt Smith <wys@yelp.com>"]
 edition = "2018"
@@ -13,4 +13,4 @@ syn = { version = "1.0", features = ["full"]}
 gdnative = "0.9"
 
 [lib]
-crate_type = ["proc-macro"]
+proc-macro = true

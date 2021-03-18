@@ -1,0 +1,66 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://rust_lib.tres" type="GDNativeLibrary" id=1]
+[ext_resource path="res://icon.png" type="Texture" id=2]
+
+[sub_resource type="NativeScript" id=1]
+resource_name = "HelloWorld"
+class_name = "HelloWorld"
+library = ExtResource( 1 )
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends Node
+
+export var tex: Texture
+
+var passed = false
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	var node = get_node(\"../HelloWorld\")
+	
+	assert(node.test_a == 10)
+	node.test_a = 1
+	assert(node.test_a == 1)
+	
+	assert(node.test_c == 10)
+	node.test_c = PI
+	assert_float_eq(node.test_c, PI)
+	
+	assert(node.simple_range == 0)
+	node.simple_range = 10.0
+	assert_float_eq(node.simple_range, 10)
+	
+	assert(node.texture == null)
+	node.texture = tex
+	assert(node.texture != null)
+	
+	assert(node.string_enum == \"This\")
+	node.string_enum = \"test\"
+	assert(node.string_enum == \"test\")
+	
+	assert(node.int_enum == 0)
+	node.int_enum = 4
+	assert(node.int_enum == 4)
+	
+	passed = true
+
+func _physics_process(_delta: float):
+	if passed:
+		print(\"All tests passed!\")
+		get_tree().quit(0)
+	else:
+		printerr(\"Failed some tests\")
+		get_tree().quit(1)
+	
+func assert_float_eq(a: float, b: float):
+	assert(abs(a - b) < .001)
+"
+
+[node name="PropertyTest" type="Node"]
+
+[node name="HelloWorld" type="Node" parent="."]
+script = SubResource( 1 )
+
+[node name="Node" type="Node" parent="."]
+script = SubResource( 2 )
+tex = ExtResource( 2 )
