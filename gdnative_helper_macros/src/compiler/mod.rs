@@ -1,5 +1,6 @@
 pub(crate) mod hints;
 mod impl_block;
+mod signal_arg;
 
 use crate::parser::gdscript_class::GdScriptClass;
 use proc_macro2::TokenStream;

@@ -60,6 +60,7 @@ func assert_float_eq(a: float, b: float):
 
 [node name="HelloWorld" type="Node" parent="."]
 script = SubResource( 1 )
+color = Color( 0, 0, 0, 0.501961 )
 
 [node name="Node" type="Node" parent="."]
 script = SubResource( 2 )

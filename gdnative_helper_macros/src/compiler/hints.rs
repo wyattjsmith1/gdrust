@@ -1,5 +1,6 @@
 use crate::parser::gdscript_var::{
-    ExportEnum, ExportExpRange, ExportFile, ExportGlobalFile, ExportRange, ExportType,
+    ExportEnum, ExportExpRange, ExportFile, ExportGlobalFile, ExportNodePath, ExportRange,
+    ExportType,
 };
 use proc_macro2::TokenStream;
 use syn::{parse_quote, Lit, Type};
@@ -19,6 +20,7 @@ pub(crate) fn property_hint(export: &ExportType, ty: &Type) -> TokenStream {
         ExportType::ExportGlobalDir(_) => export_global_dir_hint(),
         ExportType::ExportMultiline(_) => export_multiline_hint(),
         ExportType::ExportColorNoAlpha(_) => export_color_no_alpha_hint(),
+        ExportType::ExportNodePath(node_path) => export_node_path_hint(node_path),
     }
 }
 
@@ -149,11 +151,16 @@ fn export_color_no_alpha_hint() -> TokenStream {
     }
 }
 
-fn is_number(ty: &Type) -> bool {
+fn export_node_path_hint(_node_path: &ExportNodePath) -> TokenStream {
+    // TODO Set up the node path types when 4.0 is released.
+    quote::quote! {}
+}
+
+pub fn is_number(ty: &Type) -> bool {
     is_int(ty) || is_float(ty)
 }
 
-fn is_int(ty: &Type) -> bool {
+pub fn is_int(ty: &Type) -> bool {
     ty == &parse_quote!(u8)
         || ty == &parse_quote!(u16)
         || ty == &parse_quote!(u32)
@@ -168,6 +175,6 @@ fn is_int(ty: &Type) -> bool {
         || ty == &parse_quote!(isize)
 }
 
-fn is_float(ty: &Type) -> bool {
+pub fn is_float(ty: &Type) -> bool {
     ty == &parse_quote!(f32) || ty == &parse_quote!(f64)
 }

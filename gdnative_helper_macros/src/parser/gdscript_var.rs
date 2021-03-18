@@ -18,6 +18,7 @@ mod kw {
     syn::custom_keyword!(export_multiline);
     syn::custom_keyword!(export_exp_range);
     syn::custom_keyword!(export_color_no_alpha);
+    syn::custom_keyword!(export_node_path);
 }
 
 #[derive(Clone)]
@@ -34,6 +35,7 @@ pub enum ExportType {
     ExportGlobalDir(ExportGlobalDir),
     ExportMultiline(ExportMultiline),
     ExportColorNoAlpha(ExportColorNoAlpha),
+    ExportNodePath(ExportNodePath),
 }
 
 #[derive(Clone)]
@@ -108,6 +110,14 @@ pub struct ExportMultiline {
 pub struct ExportColorNoAlpha {
     pub at: Token![@],
     pub export_color_no_alpha: kw::export_color_no_alpha,
+}
+
+#[derive(Clone)]
+pub struct ExportNodePath {
+    pub at: Token![@],
+    pub export_color_no_alpha: kw::export_node_path,
+    pub paren_token: token::Paren,
+    pub types: Punctuated<Type, Token![,]>,
 }
 
 #[derive(Clone)]
@@ -220,6 +230,14 @@ impl Parse for ExportType {
             Ok(ExportType::ExportColorNoAlpha(ExportColorNoAlpha {
                 at,
                 export_color_no_alpha: input.parse()?,
+            }))
+        } else if input.peek(kw::export_node_path) {
+            let contents;
+            Ok(ExportType::ExportNodePath(ExportNodePath {
+                at,
+                export_color_no_alpha: input.parse()?,
+                paren_token: parenthesized!(contents in input),
+                types: contents.parse_terminated(Type::parse)?,
             }))
         } else {
             Err(input.error("Expected a valid export type"))

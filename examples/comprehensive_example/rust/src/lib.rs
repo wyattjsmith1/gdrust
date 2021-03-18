@@ -1,10 +1,10 @@
-use gdnative::api::Texture;
-use gdnative::prelude::{Color, InitHandle};
+use gdnative::api::{KinematicBody, Node, RigidBody, Texture};
+use gdnative::prelude::{Color, InitHandle, NodePath};
 use gdnative::{godot_init, Ref};
 use gdnative_helper::gdnative_helper_macros::gdscript;
 
 gdscript! {
-    class HelloWorld extends gdnative::api::Node {
+    class HelloWorld extends Node {
         @export var test_a: u8 = 10
         @no_export var test_b: &'static str = "Test string"
         var test_c: f32 = 10.0
@@ -41,6 +41,12 @@ gdscript! {
 
         @export var color: Color = Color::rgba(0.0, 0.0, 0.0, 0.5)
         @export_color_no_alpha var color_no_alpha: Color = Color::rgb(0.0, 0.0, 0.0)
+
+        // TODO: NodePath types are only supported in 4.0
+        @export_node_path(KinematicBody, RigidBody) var physics_body: NodePath = NodePath::default()
+
+        signal my_signal(int: I64, float: F64, tex: Texture)
+        signal typed_signal(bool: Bool = true, float: F64 = std::f64::consts::PI, tex: Texture)
     }
 }
 

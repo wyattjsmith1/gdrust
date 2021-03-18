@@ -1,4 +1,5 @@
 use crate::parser::gdscript_items::GdScriptItem;
+use crate::parser::gdscript_signal::GdScriptSignal;
 use crate::parser::gdscript_var::GdScriptVar;
 use syn::parse::{Parse, ParseStream};
 use syn::{braced, parse_quote, Ident, Result, Type};
@@ -29,6 +30,16 @@ impl GdScriptClass {
             .iter()
             .filter_map(|x| match x {
                 GdScriptItem::Variable(x) => Some(x.clone()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    pub fn signals(&self) -> Vec<GdScriptSignal> {
+        self.items
+            .iter()
+            .filter_map(|x| match x {
+                GdScriptItem::Signal(x) => Some(x.clone()),
                 _ => None,
             })
             .collect()

@@ -1,5 +1,7 @@
 use crate::compiler::hints::property_hint;
+use crate::compiler::signal_arg::create_signal_arg;
 use crate::parser::gdscript_class::GdScriptClass;
+use crate::parser::gdscript_signal::GdScriptSignal;
 use crate::parser::gdscript_var::{ExportType, GdScriptVar};
 use proc_macro2::TokenStream;
 
@@ -36,11 +38,17 @@ fn init_vars(class: &GdScriptClass) -> Vec<TokenStream> {
 }
 
 fn register_with_fn(class: &GdScriptClass) -> TokenStream {
-    let vars = class.vars();
-    let properties: Vec<TokenStream> = vars.iter().map(|x| builder_for_var(x)).collect();
+    let properties: Vec<TokenStream> = class.vars().iter().map(|x| builder_for_var(x)).collect();
+    let signals: Vec<TokenStream> = class
+        .signals()
+        .iter()
+        .map(|x| builder_for_signal(x))
+        .collect();
     quote::quote! {
         fn __register_properties_and_signals(builder: &gdnative::prelude::ClassBuilder<Self>) {
             #(#properties)*
+
+            #(#signals)*
         }
     }
 }
@@ -58,9 +66,9 @@ fn builder_for_var(var: &GdScriptVar) -> TokenStream {
         gdnative::godot_print!("Setting {:?} = {:?}", &#ident_str, &val);
         this.#ident = val
     })};
-    let getter = quote::quote! { .with_getter(|this, _owner| {
+    let getter = quote::quote! { .with_ref_getter(|this, _owner| {
         gdnative::godot_print!("Getting {:?} = {:?}", &#ident_str, &this.#ident);
-        this.#ident.clone()
+        &this.#ident
     })};
     let default = quote::quote! { .with_default(#default) };
     quote::quote! {
@@ -70,5 +78,22 @@ fn builder_for_var(var: &GdScriptVar) -> TokenStream {
             #setter
             #default
             .done();
+    }
+}
+
+fn builder_for_signal(signal: &GdScriptSignal) -> TokenStream {
+    let name_str = signal.name.to_string();
+    let args: Vec<TokenStream> = signal
+        .signal_type
+        .iter()
+        .map(|x| create_signal_arg(x))
+        .collect();
+    quote::quote! {
+        builder.add_signal(gdnative::nativescript::Signal {
+            name: #name_str,
+            args: &[
+                #(#args,)*
+            ]
+        });
     }
 }
