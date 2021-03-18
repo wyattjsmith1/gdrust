@@ -11,7 +11,6 @@ pub fn gd_impl(class: &GdScriptClass) -> TokenStream {
     let init_vars = init_vars(class);
     let register_with = register_with_fn(class);
     quote::quote! {
-        #[gdnative::methods]
         impl #class_name {
             fn new(_owner: &#ty) -> Self {
                 Self {
@@ -63,11 +62,9 @@ fn builder_for_var(var: &GdScriptVar) -> TokenStream {
     let ident_str = ident.to_string();
     let hint = property_hint(&var.export, &var.ty);
     let setter = quote::quote! { .with_setter(|this, _owner, val| {
-        gdnative::godot_print!("Setting {:?} = {:?}", &#ident_str, &val);
         this.#ident = val
     })};
     let getter = quote::quote! { .with_ref_getter(|this, _owner| {
-        gdnative::godot_print!("Getting {:?} = {:?}", &#ident_str, &this.#ident);
         &this.#ident
     })};
     let default = quote::quote! { .with_default(#default) };

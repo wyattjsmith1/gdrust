@@ -1,6 +1,6 @@
 use gdnative::api::{KinematicBody, Node, RigidBody, Texture};
 use gdnative::prelude::{Color, InitHandle, NodePath};
-use gdnative::{godot_init, Ref};
+use gdnative::{godot_init, Ref, TRef};
 use gdnative_helper::gdnative_helper_macros::gdscript;
 
 gdscript! {
@@ -54,6 +54,14 @@ gdscript! {
         @export_flags_2d_render var layers_2d_render: u32 = 0
         @export_flags_3d_physics var layers_3d_physics: u32 = 0
         @export_flags_3d_render var layers_3d_render: u32 = 0
+    }
+}
+
+#[gdnative::methods]
+impl HelloWorld {
+    #[export]
+    fn _ready(&self, _owner: TRef<Node>) {
+        gdnative::godot_print!("Hello World!")
     }
 }
 
