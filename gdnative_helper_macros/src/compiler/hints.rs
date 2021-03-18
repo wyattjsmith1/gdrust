@@ -1,6 +1,6 @@
 use crate::parser::gdscript_var::{
-    ExportEnum, ExportExpRange, ExportFile, ExportGlobalFile, ExportNodePath, ExportRange,
-    ExportType,
+    ExportEnum, ExportExpRange, ExportFile, ExportFlags, ExportGlobalFile, ExportNodePath,
+    ExportRange, ExportType,
 };
 use proc_macro2::TokenStream;
 use syn::{parse_quote, Lit, Type};
@@ -21,6 +21,11 @@ pub(crate) fn property_hint(export: &ExportType, ty: &Type) -> TokenStream {
         ExportType::ExportMultiline(_) => export_multiline_hint(),
         ExportType::ExportColorNoAlpha(_) => export_color_no_alpha_hint(),
         ExportType::ExportNodePath(node_path) => export_node_path_hint(node_path),
+        ExportType::ExportFlags(flags) => export_flags_hint(flags),
+        ExportType::ExportFlags2dPhysics(_) => export_flags_2d_physics_hint(),
+        ExportType::ExportFlags2dRender(_) => export_flags_2d_render_hint(),
+        ExportType::ExportFlags3dPhysics(_) => export_flags_3d_physics_hint(),
+        ExportType::ExportFlags3dRender(_) => export_flags_3d_render_hint(),
     }
 }
 
@@ -154,6 +159,36 @@ fn export_color_no_alpha_hint() -> TokenStream {
 fn export_node_path_hint(_node_path: &ExportNodePath) -> TokenStream {
     // TODO Set up the node path types when 4.0 is released.
     quote::quote! {}
+}
+
+fn export_flags_hint(flags: &ExportFlags) -> TokenStream {
+    let items = flags.values.iter();
+    let hint = quote::quote! {
+        gdnative::nativescript::init::property::EnumHint::new(
+            vec![
+                #(#items.into(),)*
+            ]
+        )
+    };
+    quote::quote! {
+        .with_hint(gdnative::nativescript::init::property::IntHint::Flags(#hint))
+    }
+}
+
+fn export_flags_2d_physics_hint() -> TokenStream {
+    quote::quote! { .with_hint(gdnative::nativescript::init::property::IntHint::Layers2DPhysics)}
+}
+
+fn export_flags_2d_render_hint() -> TokenStream {
+    quote::quote! { .with_hint(gdnative::nativescript::init::property::IntHint::Layers2DRender)}
+}
+
+fn export_flags_3d_physics_hint() -> TokenStream {
+    quote::quote! { .with_hint(gdnative::nativescript::init::property::IntHint::Layers3DPhysics)}
+}
+
+fn export_flags_3d_render_hint() -> TokenStream {
+    quote::quote! { .with_hint(gdnative::nativescript::init::property::IntHint::Layers3DRender)}
 }
 
 pub fn is_number(ty: &Type) -> bool {

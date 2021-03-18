@@ -42,11 +42,18 @@ gdscript! {
         @export var color: Color = Color::rgba(0.0, 0.0, 0.0, 0.5)
         @export_color_no_alpha var color_no_alpha: Color = Color::rgb(0.0, 0.0, 0.0)
 
+        @export_flags("Fire", "Water", "Earth", "Wind") var spell_elements: u32 = 0
+
         // TODO: NodePath types are only supported in 4.0
         @export_node_path(KinematicBody, RigidBody) var physics_body: NodePath = NodePath::default()
 
         signal my_signal(int: I64, float: F64, tex: Texture)
         signal typed_signal(bool: Bool = true, float: F64 = std::f64::consts::PI, tex: Texture)
+
+        @export_flags_2d_physics var layers_2d_physics: u32 = 0
+        @export_flags_2d_render var layers_2d_render: u32 = 0
+        @export_flags_3d_physics var layers_3d_physics: u32 = 0
+        @export_flags_3d_render var layers_3d_render: u32 = 0
     }
 }
 

@@ -19,6 +19,11 @@ mod kw {
     syn::custom_keyword!(export_exp_range);
     syn::custom_keyword!(export_color_no_alpha);
     syn::custom_keyword!(export_node_path);
+    syn::custom_keyword!(export_flags);
+    syn::custom_keyword!(export_flags_2d_physics);
+    syn::custom_keyword!(export_flags_2d_render);
+    syn::custom_keyword!(export_flags_3d_physics);
+    syn::custom_keyword!(export_flags_3d_render);
 }
 
 #[derive(Clone)]
@@ -36,6 +41,11 @@ pub enum ExportType {
     ExportMultiline(ExportMultiline),
     ExportColorNoAlpha(ExportColorNoAlpha),
     ExportNodePath(ExportNodePath),
+    ExportFlags(ExportFlags),
+    ExportFlags2dPhysics(ExportFlags2dPhysics),
+    ExportFlags2dRender(ExportFlags2dRender),
+    ExportFlags3dPhysics(ExportFlags3dPhysics),
+    ExportFlags3dRender(ExportFlags3dRender),
 }
 
 #[derive(Clone)]
@@ -118,6 +128,38 @@ pub struct ExportNodePath {
     pub export_color_no_alpha: kw::export_node_path,
     pub paren_token: token::Paren,
     pub types: Punctuated<Type, Token![,]>,
+}
+
+#[derive(Clone)]
+pub struct ExportFlags {
+    pub at: Token![@],
+    pub export_flags: kw::export_flags,
+    pub paren_token: token::Paren,
+    pub values: Punctuated<LitStr, Token![,]>,
+}
+
+#[derive(Clone)]
+pub struct ExportFlags2dPhysics {
+    pub at: Token![@],
+    pub export_flags_2d_physics: kw::export_flags_2d_physics,
+}
+
+#[derive(Clone)]
+pub struct ExportFlags2dRender {
+    pub at: Token![@],
+    pub export_flags_2d_render: kw::export_flags_2d_render,
+}
+
+#[derive(Clone)]
+pub struct ExportFlags3dPhysics {
+    pub at: Token![@],
+    pub export_flags_3d_physics: kw::export_flags_3d_physics,
+}
+
+#[derive(Clone)]
+pub struct ExportFlags3dRender {
+    pub at: Token![@],
+    pub export_flags_3d_render: kw::export_flags_3d_render,
 }
 
 #[derive(Clone)]
@@ -238,6 +280,34 @@ impl Parse for ExportType {
                 export_color_no_alpha: input.parse()?,
                 paren_token: parenthesized!(contents in input),
                 types: contents.parse_terminated(Type::parse)?,
+            }))
+        } else if input.peek(kw::export_flags) {
+            let contents;
+            Ok(ExportType::ExportFlags(ExportFlags {
+                at,
+                export_flags: input.parse()?,
+                paren_token: parenthesized!(contents in input),
+                values: contents.parse_terminated(<LitStr as Parse>::parse)?,
+            }))
+        } else if input.peek(kw::export_flags_2d_physics) {
+            Ok(ExportType::ExportFlags2dPhysics(ExportFlags2dPhysics {
+                at,
+                export_flags_2d_physics: input.parse()?,
+            }))
+        } else if input.peek(kw::export_flags_2d_render) {
+            Ok(ExportType::ExportFlags2dRender(ExportFlags2dRender {
+                at,
+                export_flags_2d_render: input.parse()?,
+            }))
+        } else if input.peek(kw::export_flags_3d_physics) {
+            Ok(ExportType::ExportFlags3dPhysics(ExportFlags3dPhysics {
+                at,
+                export_flags_3d_physics: input.parse()?,
+            }))
+        } else if input.peek(kw::export_flags_3d_render) {
+            Ok(ExportType::ExportFlags3dRender(ExportFlags3dRender {
+                at,
+                export_flags_3d_render: input.parse()?,
             }))
         } else {
             Err(input.error("Expected a valid export type"))
