@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "gdnative_helper",
+    "gdnative_helper_macros",
+]
