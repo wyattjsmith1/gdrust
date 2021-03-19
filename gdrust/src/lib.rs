@@ -1,5 +1,4 @@
 #![allow(clippy::doc_markdown)]
-#![macro_use]
 //! [![Rust](https://github.com/wyattjsmith1/gdrust/actions/workflows/rust.yml/badge.svg?branch=master&event=push)](https://github.com/wyattjsmith1/gdrust/actions/workflows/rust.yml)
 //!
 //! A library for making [`gdnative-rust`](https://github.com/godot-rust/godot-rust) a bit more
