@@ -9,6 +9,7 @@ pub mod option_ext;
 pub mod result_ext;
 pub mod spatial_ext;
 
+/// Same functionality as `panic!()`, but also outputs to the godot output.
 #[macro_export]
 macro_rules! godot_panic {
     ($($args:tt)*) => {
@@ -19,6 +20,7 @@ macro_rules! godot_panic {
     }
 }
 
+/// Same functionality as `assert!()`, but also outputs to the godot output.
 #[macro_export]
 macro_rules! godot_assert {
     ($condition:expr $(,)?) => {
