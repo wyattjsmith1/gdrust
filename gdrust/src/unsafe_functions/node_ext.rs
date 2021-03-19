@@ -1,4 +1,4 @@
-use crate::unsafe_functions::godot_panic;
+use crate::unsafe_functions::option_ext::OptionExt;
 use gdnative::prelude::{Node, NodePath, Shared, SubClass};
 use gdnative::NewRef;
 use gdnative::TRef;
@@ -28,14 +28,12 @@ impl<'a, T: SubClass<Node>> NodeExt for TRef<'a, T> {
         unsafe {
             self.upcast()
                 .get_node(path.new_ref())
-                .unwrap_or_else(|| {
-                    godot_panic(
-                        format!("Could not find a node at {}", path.new_ref().to_string()).as_str(),
-                    )
-                })
+                .godot_expect(
+                    format!("Could not find a node at {}", path.new_ref().to_string()).as_str(),
+                )
                 .assume_safe()
                 .cast::<Child>()
-                .expect("Could not cast")
+                .godot_expect("Could not cast")
         }
     }
 
@@ -43,10 +41,10 @@ impl<'a, T: SubClass<Node>> NodeExt for TRef<'a, T> {
         unsafe {
             self.upcast()
                 .get_parent()
-                .unwrap_or_else(|| godot_panic("Could not get a parent node"))
+                .godot_expect("Could not get a parent node")
                 .assume_safe()
                 .cast::<Child>()
-                .expect("Could not cast")
+                .godot_expect("Could not cast")
         }
     }
 }
