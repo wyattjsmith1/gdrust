@@ -27,10 +27,9 @@ impl<'a, T: SubClass<Node>> NodeExt for TRef<'a, T> {
             self.upcast()
                 .get_node(path.new_ref())
                 .unwrap_or_else(|| {
-                    godot_panic(format!(
-                        "Could not find a node at {}",
-                        path.new_ref().to_string()
-                    ))
+                    godot_panic(
+                        format!("Could not find a node at {}", path.new_ref().to_string()).as_str(),
+                    )
                 })
                 .assume_safe()
                 .cast::<Child>()
@@ -42,7 +41,7 @@ impl<'a, T: SubClass<Node>> NodeExt for TRef<'a, T> {
         unsafe {
             self.upcast()
                 .get_parent()
-                .unwrap_or_else(|| godot_panic("Could not get a parent node".to_string()))
+                .unwrap_or_else(|| godot_panic("Could not get a parent node"))
                 .assume_safe()
                 .cast::<Child>()
                 .expect("Could not cast")

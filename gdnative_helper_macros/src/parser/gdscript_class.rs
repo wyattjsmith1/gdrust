@@ -2,7 +2,7 @@ use crate::parser::gdscript_items::GdScriptItem;
 use crate::parser::gdscript_signal::GdScriptSignal;
 use crate::parser::gdscript_var::GdScriptVar;
 use syn::parse::{Parse, ParseStream};
-use syn::{braced, parse_quote, Ident, Result, Type};
+use syn::{braced, parse_quote, Attribute, Ident, Result, Type};
 
 mod kw {
     syn::custom_keyword!(class);
@@ -10,6 +10,7 @@ mod kw {
 }
 
 pub struct GdScriptClass {
+    pub attributes: Vec<Attribute>,
     pub class_token: kw::class,
     pub name: Ident,
     pub extends: Option<(kw::extends, Type)>,
@@ -18,6 +19,7 @@ pub struct GdScriptClass {
 }
 
 impl GdScriptClass {
+    #[allow(clippy::or_fun_call)]
     pub fn parent(&self) -> Type {
         self.extends
             .as_ref()
@@ -48,6 +50,7 @@ impl GdScriptClass {
 
 impl Parse for GdScriptClass {
     fn parse(input: ParseStream) -> Result<Self> {
+        let attributes = input.call(Attribute::parse_outer)?;
         let class_token = input.parse::<kw::class>()?;
         let name = input.parse()?;
         let extends = if input.peek(kw::extends) {
@@ -62,6 +65,7 @@ impl Parse for GdScriptClass {
             items.push(content.parse()?)
         }
         Ok(GdScriptClass {
+            attributes,
             class_token,
             name,
             extends,

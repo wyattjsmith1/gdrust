@@ -1,3 +1,5 @@
+#![allow(clippy::doc_markdown)]
+//! [![Rust](https://github.com/wyattjsmith1/gdrust/actions/workflows/rust.yml/badge.svg?branch=master&event=push)](https://github.com/wyattjsmith1/gdrust/actions/workflows/rust.yml)
 //! A library for making [`gdnative-rust`](https://github.com/godot-rust/godot-rust) a bit more
 //! GdScript-like. This contains two main parts:
 //!
@@ -14,8 +16,9 @@
 //! example is Rust's separation of data and logic through `struct`s and `impl`s. This undoubtedly
 //! leads to better code, but doesn't work too well with Godot, which uses `class`es because
 //! properties are part of the data (`struct`), but exposed in logic (`impls`).
-//! To surface an example: exporting properties.
-//! Currently, using `gdnative-rust` we must export properties like:
+//!
+//! To surface an example: exporting properties. Currently, using `gdnative-rust` we must export
+//! properties like:
 //! ```ignore
 //! #[derive(gdnative::NativeClass)]
 //! #[inherit(MeshInstance)]
@@ -142,7 +145,7 @@
 //! ```
 //!
 //! After you create the class and export properties and signals, create your `impl` block as
-//! usual:
+//! usual. Note, you should not create the `new` function. That is provided by the macro:
 //! ```ignore
 //! #[gdnative::methods]
 //! impl HelloWorld {

@@ -1,8 +1,20 @@
 [package]
 name = "gdnative_helper"
 version = "0.1.0"
-authors = ["Wyatt Smith <wys@yelp.com>"]
+authors = ["gdrust developers"]
 edition = "2018"
+license = "MIT"
+readme = "../README.md"
+description = "A simple tool to make interacting with gdnative-rust a little easier."
+homepage = "https://github.com/wyattjsmith1/gdrust"
+repository = "https://github.com/wyattjsmith1/gdrust"
+keywords = [
+    "godot",
+    "gdnative",
+]
+categories = [
+    "game-development",
+]
 
 [dependencies]
 gdnative = "0.9"

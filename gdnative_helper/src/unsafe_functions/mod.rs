@@ -5,7 +5,7 @@
 pub mod node_ext;
 pub mod spatial_ext;
 
-pub(crate) fn godot_panic(message: String) -> ! {
+pub(crate) fn godot_panic(message: &str) -> ! {
     gdnative::godot_error!("{}", message);
     panic!("{}", message)
 }

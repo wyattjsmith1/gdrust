@@ -7,7 +7,6 @@ use syn::parse::{Parse, ParseStream, Result};
 pub enum GdScriptItem {
     Variable(GdScriptVar),
     Signal(GdScriptSignal),
-    // Function(syn::ItemFn),
 }
 
 impl Parse for GdScriptItem {
