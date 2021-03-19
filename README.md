@@ -1,6 +1,7 @@
 # gdnative_helper
 
 [![Rust](https://github.com/wyattjsmith1/gdrust/actions/workflows/rust.yml/badge.svg?branch=master&event=push)](https://github.com/wyattjsmith1/gdrust/actions/workflows/rust.yml)
+
 A library for making [`gdnative-rust`](https://github.com/godot-rust/godot-rust) a bit more
 GdScript-like. This contains two main parts:
 
@@ -132,18 +133,29 @@ in-depth comprehensive example.
 
 ### Exporting "`class`es"
 Rust doesn't have the concept of a "`class`", but Godot does. To make things a bit more GdScript
-friendly, regular class notation is used.:
+friendly, regular class notation is used:
 ```rust
 class ClassName extends KinematicBody {
     // Same as `class_name ClassName extends KinematicBody` in GdScript.
 }
 ```
+
 The `extends Parent` is optional, and may be omitted if you are just extending `Object`:
 ```rust
 class ClassName extends KinematicBody {
     // Same as `class_name ClassName extends Object` in GdScript.
 }
 ```
+
+You can still have custom derives and attributes on your class. Any attributes on `class` will
+be added:
+```rust
+#[derive(Debug)]
+class ClassName extends KinematicBody {
+    // `ClassName` will derive `Debug`
+}
+```
+
 
 After you create the class and export properties and signals, create your `impl` block as
 usual. Note, you should not create the `new` function. That is provided by the macro:
@@ -202,6 +214,7 @@ use gdnative::{godot_init, Ref, TRef};
 use gdnative_helper::gdnative_helper_macros::gdrust;
 
 gdrust! {
+   #[derive(Debug)]
    class HelloWorld extends Node {
        @export var test_a: u8 = 10
        @no_export var test_b: &'static str = "Test string"
@@ -353,3 +366,5 @@ other "true rust" functions. This project is not intended to create a new langua
 to rust, but rather to improve the bindings.
 
 ---
+
+License: MIT
