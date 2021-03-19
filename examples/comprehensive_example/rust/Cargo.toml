@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-gdnative_helper = { path = "../../../gdnative_helper" }
+gdrust = { path = "../../../gdrust" }
 gdnative = "0.9"
 
 [lib]

@@ -1,5 +1,5 @@
 [package]
-name = "gdnative_helper_macros"
+name = "gdrust_macros"
 version = "0.1.0"
 authors = ["gdrust developers"]
 edition = "2018"

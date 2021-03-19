@@ -1,4 +1,4 @@
-# gdnative_helper
+# gdrust
 
 [![Rust](https://github.com/wyattjsmith1/gdrust/actions/workflows/rust.yml/badge.svg?branch=master&event=push)](https://github.com/wyattjsmith1/gdrust/actions/workflows/rust.yml)
 
@@ -29,7 +29,7 @@ gdrust = { git = "http://github.com/TODO" }
 
 Once installed, simply use the `gdrust` macro:
 ```rust
-use gdnative_helper::gdnative_helper_macros::gdrust;
+use gdrust::macros::gdrust;
 use gdnative::api::Node;
 
 gdrust! {
@@ -125,7 +125,7 @@ for testing as well.
 use gdnative::api::{KinematicBody, Node, RigidBody, Texture};
 use gdnative::prelude::{Color, InitHandle, NodePath};
 use gdnative::{godot_init, Ref, TRef};
-use gdnative_helper::gdnative_helper_macros::gdrust;
+use gdrust::macros::gdrust;
 
 gdrust! {
    #[derive(Debug)]

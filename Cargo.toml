@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "gdnative_helper",
-    "gdnative_helper_macros",
+    "gdrust",
+    "gdrust_macros",
     "examples/comprehensive_example/rust",
 ]

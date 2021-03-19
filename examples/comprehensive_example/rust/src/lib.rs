@@ -1,7 +1,7 @@
 use gdnative::api::{Node, Texture};
 use gdnative::prelude::{Color, InitHandle, NodePath};
 use gdnative::{godot_init, Ref, TRef};
-use gdnative_helper::gdnative_helper_macros::gdrust;
+use gdrust::macros::gdrust;
 
 gdrust! {
     #[derive(Debug)]
