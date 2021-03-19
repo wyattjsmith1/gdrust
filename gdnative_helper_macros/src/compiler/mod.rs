@@ -28,7 +28,9 @@ fn create_struct(class: &GdScriptClass) -> TokenStream {
         })
         .collect();
     let parent = class.parent();
+    let attributes = class.attributes.iter();
     quote::quote! {
+        #(#attributes)*
         #[derive(gdnative::NativeClass)]
         #[inherit(#parent)]
         #[register_with(Self::__register_properties_and_signals)]

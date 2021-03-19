@@ -188,6 +188,7 @@ impl Parse for GdScriptVar {
 }
 
 impl Parse for ExportType {
+    #[allow(clippy::too_many_lines)]
     fn parse(input: ParseStream) -> Result<Self> {
         if !input.peek(Token![@]) {
             return Ok(ExportType::NoHint);
@@ -204,34 +205,45 @@ impl Parse for ExportType {
                 export: input.parse()?,
             }))
         } else if input.peek(kw::export_range) {
+            let export = input.parse()?;
             let content;
+            let paren_token = parenthesized!(content in input);
+            let range = content.parse_terminated(Lit::parse)?;
             Ok(ExportType::ExportRange(ExportRange {
                 at,
-                export: input.parse()?,
-                paren_token: parenthesized!(content in input),
-                range: content.parse_terminated(Lit::parse)?,
+                export,
+                paren_token,
+                range,
             }))
         } else if input.peek(kw::export_exp_range) {
+            let export = input.parse()?;
             let content;
+            let paren_token = parenthesized!(content in input);
+            let range = content.parse_terminated(Lit::parse)?;
             Ok(ExportType::ExportExpRange(ExportExpRange {
                 at,
-                export: input.parse()?,
-                paren_token: parenthesized!(content in input),
-                range: content.parse_terminated(Lit::parse)?,
+                export,
+                paren_token,
+                range,
             }))
         } else if input.peek(kw::export_enum) {
+            let export = input.parse()?;
             let content;
+            let paren_token = parenthesized!(content in input);
+            let values = content.parse_terminated(<LitStr as Parse>::parse)?;
             Ok(ExportType::ExportEnum(ExportEnum {
                 at,
-                export: input.parse()?,
-                paren_token: parenthesized!(content in input),
-                values: content.parse_terminated(<LitStr as Parse>::parse)?,
+                export,
+                paren_token,
+                values,
             }))
         } else if input.peek(kw::export_file) {
             let export_file = input.parse()?;
             let filter = if input.peek(token::Paren) {
                 let contents;
-                Some((parenthesized!(contents in input), contents.parse()?))
+                let paren = parenthesized!(contents in input);
+                let hint = contents.parse()?;
+                Some((paren, hint))
             } else {
                 None
             };
@@ -249,7 +261,9 @@ impl Parse for ExportType {
             let export_global_file = input.parse()?;
             let filter = if input.peek(token::Paren) {
                 let contents;
-                Some((parenthesized!(contents in input), contents.parse()?))
+                let paren = parenthesized!(contents in input);
+                let hint = contents.parse()?;
+                Some((paren, hint))
             } else {
                 None
             };
@@ -275,19 +289,25 @@ impl Parse for ExportType {
             }))
         } else if input.peek(kw::export_node_path) {
             let contents;
+            let export_color_no_alpha = input.parse()?;
+            let paren_token = parenthesized!(contents in input);
+            let types = contents.parse_terminated(Type::parse)?;
             Ok(ExportType::ExportNodePath(ExportNodePath {
                 at,
-                export_color_no_alpha: input.parse()?,
-                paren_token: parenthesized!(contents in input),
-                types: contents.parse_terminated(Type::parse)?,
+                export_color_no_alpha,
+                paren_token,
+                types,
             }))
         } else if input.peek(kw::export_flags) {
             let contents;
+            let export_flags = input.parse()?;
+            let paren_token = parenthesized!(contents in input);
+            let values = contents.parse_terminated(<LitStr as Parse>::parse)?;
             Ok(ExportType::ExportFlags(ExportFlags {
                 at,
-                export_flags: input.parse()?,
-                paren_token: parenthesized!(contents in input),
-                values: contents.parse_terminated(<LitStr as Parse>::parse)?,
+                export_flags,
+                paren_token,
+                values,
             }))
         } else if input.peek(kw::export_flags_2d_physics) {
             Ok(ExportType::ExportFlags2dPhysics(ExportFlags2dPhysics {

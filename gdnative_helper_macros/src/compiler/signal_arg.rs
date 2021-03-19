@@ -2,6 +2,7 @@ use crate::parser::gdscript_signal::SignalArg;
 use proc_macro2::TokenStream;
 use syn::parse_quote;
 
+#[allow(clippy::module_name_repetitions)]
 pub fn create_signal_arg(arg: &SignalArg) -> TokenStream {
     let name_str = arg.name.to_string();
     let default = if let Some((_, default)) = arg.default.as_ref() {

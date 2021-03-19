@@ -25,11 +25,15 @@ pub struct GdScriptSignal {
 impl Parse for GdScriptSignal {
     fn parse(input: ParseStream) -> Result<Self> {
         let content;
+        let signal_token = input.parse()?;
+        let name = input.parse()?;
+        let paren_token = parenthesized!(content in input);
+        let signal_type = content.parse_terminated(SignalArg::parse)?;
         Ok(GdScriptSignal {
-            signal_token: input.parse()?,
-            name: input.parse()?,
-            paren_token: parenthesized!(content in input),
-            signal_type: content.parse_terminated(SignalArg::parse)?,
+            signal_token,
+            name,
+            paren_token,
+            signal_type,
         })
     }
 }

@@ -30,14 +30,22 @@ pub(crate) fn property_hint(export: &ExportType, ty: &Type) -> TokenStream {
 }
 
 fn export_exp_range_hint(range: &ExportExpRange, ty: &Type) -> TokenStream {
-    export_range_hint_helper(range.range.iter().collect(), ty, true)
+    export_range_hint_helper(
+        range.range.iter().collect::<Vec<&Lit>>().as_slice(),
+        ty,
+        true,
+    )
 }
 
 fn export_range_hint(range: &ExportRange, ty: &Type) -> TokenStream {
-    export_range_hint_helper(range.range.iter().collect(), ty, false)
+    export_range_hint_helper(
+        range.range.iter().collect::<Vec<&Lit>>().as_slice(),
+        ty,
+        false,
+    )
 }
 
-fn export_range_hint_helper(range: Vec<&Lit>, ty: &Type, is_exp: bool) -> TokenStream {
+fn export_range_hint_helper(range: &[&Lit], ty: &Type, is_exp: bool) -> TokenStream {
     assert!(is_number(ty), "Export range must be a number (int, float)");
     assert!(
         range.len() >= 2,
