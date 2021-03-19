@@ -3,6 +3,19 @@ name = "gdrust_macros"
 version = "0.1.0"
 authors = ["gdrust developers"]
 edition = "2018"
+license = "MIT"
+readme = "../README.md"
+description = "You are probably looking for `gdrust`. This is the macros it exports."
+homepage = "https://github.com/wyattjsmith1/gdrust"
+repository = "https://github.com/wyattjsmith1/gdrust"
+keywords = [
+    "godot",
+    "gdnative",
+    "gdrust",
+]
+categories = [
+    "game-development",
+]
 
 [dependencies]
 proc-macro2 = "1.0"
