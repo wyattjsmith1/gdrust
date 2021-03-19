@@ -37,6 +37,24 @@ macro_rules! godot_assert {
     };
 }
 
+/// Same functionality as `debug_assert!()`, but also outputs to the godot output.
+#[macro_export]
+macro_rules! godot_debug_assert {
+    ($condition:expr $(,)?) => {
+
+        if cfg!(debug_assertions) && !$condition {
+            gdnative::godot_error!("Assertion error: {}", stringify!($condition));
+            panic!("Assertion error: {}", stringify!($condition));
+        }
+    };
+    ($condition:expr, $($args:tt)*) => {
+        if cfg!(debug_assertions) && !$condition {
+            gdnative::godot_error!($($args)*);
+            panic!($($args)*);
+        }
+    };
+}
+
 #[cfg(test)]
 mod test {
     #[test]
@@ -47,5 +65,15 @@ mod test {
     #[test]
     fn godot_assert_message_true() {
         godot_assert!(true, "this should not {}", "happen")
+    }
+
+    #[test]
+    fn godot_debug_assert_true() {
+        godot_debug_assert!(true)
+    }
+
+    #[test]
+    fn godot_debug_assert_message_true() {
+        godot_debug_assert!(true, "this should not {}", "happen")
     }
 }
