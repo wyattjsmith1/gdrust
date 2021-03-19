@@ -20,3 +20,10 @@ favoring readability over supporting 100% of cases.
 PRs are always welcome. If you are making a PR to resolve a specific issue, please link 
 to that issue. If you are adding a new feature, please consider filing an issue before 
 you implement the change so it can be discussed by the community.
+
+When making a PR, ensure the automated tests pass, but also test the example project:
+
+1. Open `comprehensive_example` in Godot.
+2. View the `HelloWorld` node in the inspector.
+3. Look at each property, and ensure the hint seems to match the name.
+4. Run the game. Ensure it says all tests pass.
