@@ -1,5 +1,5 @@
 [package]
-name = "gdnative_helper"
+name = "gdrust"
 version = "0.1.0"
 authors = ["gdrust developers"]
 edition = "2018"
@@ -18,6 +18,6 @@ categories = [
 
 [dependencies]
 gdnative = "0.9"
-gdnative_helper_macros = { path = "../gdnative_helper_macros" }
+gdrust_macros = { path = "../gdrust_macros" }
 euclid = "0.22"
 num-traits = "0.2"

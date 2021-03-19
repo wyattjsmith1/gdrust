@@ -28,7 +28,7 @@
 //!
 //! Once installed, simply use the `gdrust` macro:
 //! ```
-//! use gdnative_helper::gdnative_helper_macros::gdrust;
+//! use gdrust::macros::gdrust;
 //! use gdnative::api::Node;
 //!
 //! gdrust! {
@@ -124,7 +124,7 @@
 //!use gdnative::api::{KinematicBody, Node, RigidBody, Texture};
 //!use gdnative::prelude::{Color, InitHandle, NodePath};
 //!use gdnative::{godot_init, Ref, TRef};
-//!use gdnative_helper::gdnative_helper_macros::gdrust;
+//!use gdrust::macros::gdrust;
 //!
 //!gdrust! {
 //!    #[derive(Debug)]
@@ -366,5 +366,5 @@
 //! to rust, but rather to improve the bindings.
 //!
 //! ---
-pub use gdnative_helper_macros;
+pub use gdrust_macros as macros;
 pub mod unsafe_functions;
