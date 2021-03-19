@@ -11,6 +11,7 @@ repository = "https://github.com/wyattjsmith1/gdrust"
 keywords = [
     "godot",
     "gdnative",
+    "gdrust",
 ]
 categories = [
     "game-development",

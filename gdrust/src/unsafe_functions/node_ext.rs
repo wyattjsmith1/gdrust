@@ -4,13 +4,15 @@ use gdnative::NewRef;
 use gdnative::TRef;
 
 pub trait NodeExt {
-    /// Gets a typed node from a node path. This has an explicit `unsafe` block, and can panic.
+    /// Gets a typed node from a node path. This has an explicit `unsafe` block, and can panic. The
+    /// unsafe code is calling `assume_safe` on the node at `path`.
     /// # Panics
     /// - If no node is found at the path.
     /// - If a node is found at the path, but is not the correct type.
     fn require_typed_node<T: SubClass<Node>, P: Into<NodePath>>(&self, path: P) -> TRef<T>;
 
-    /// Gets the parent node with a type. This has an explicit `unsafe` block, and can panic.
+    /// Gets the parent node with a type. This has an explicit `unsafe` block, and can panic.The
+    /// unsafe code is calling `assume_safe` on the parent node.
     /// # Panics
     /// - If no parent is found (root node).
     /// - If a node is found at the path, but is not the correct type.

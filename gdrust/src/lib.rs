@@ -251,6 +251,15 @@
 //! [`gdnative-rust`'s memory model](https://docs.rs/gdnative/0.9.3/gdnative/struct.Ref.html). Once
 //! you do, you should have the right judgement on when to use these helper functions.
 //!
+//! # Compatibility
+//! Unfortunately, `gdrust` requires the `gdnative` dependency, and it can not be `pub use`d due
+//! to the way `gdnative`'s macros work. As as result, you must ensure you have a compatible version
+//! of both `gdrust` and `gdnative`. This table will be updated with all compatible versions:
+//!
+//! | gdrust  | gdnative |
+//! |---------|----------|
+//! | `0.1.0` | `0.9.+`  |
+//!
 //!
 //! # Reasoning For This Project
 //! The team at [`gdnative-rust`](https://github.com/godot-rust/godot-rust) has done a wonderful job

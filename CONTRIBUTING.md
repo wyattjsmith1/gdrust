@@ -27,3 +27,17 @@ When making a PR, ensure the automated tests pass, but also test the example pro
 2. View the `HelloWorld` node in the inspector.
 3. Look at each property, and ensure the hint seems to match the name.
 4. Run the game. Ensure it says all tests pass.
+
+### Creating new `unsafe_function`s
+Additional `unsafe_function`s are always welcome. When designing a new one, please
+consider the following:
+
+1. **Does this replicate a gdscript behavior?** In general, we want to only add functions
+that expose some gdscript behavior. For example, `require_typed_node()` functions the same
+as `get_node()` in gdscript.
+2. **How safe is it?** Yes, it is called `unsafe_functions`, but this is unsafe in the
+context of rust. Much like the comment above, we should be trying to duplicate some 
+gdscript feature as well as its risks. All panics should be clearly documented and 
+intuitive given the function name, and all unsafe code should be documented and safe 
+in standard use cases. Simply stating that a function calls `assume_safe()` is a good
+enough hint for the user.
