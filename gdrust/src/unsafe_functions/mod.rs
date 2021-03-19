@@ -18,3 +18,32 @@ macro_rules! godot_panic {
         }
     }
 }
+
+#[macro_export]
+macro_rules! godot_assert {
+    ($condition:expr $(,)?) => {
+        if !$condition {
+            gdnative::godot_error!("Assertion error: {}", stringify!($condition));
+            panic!("Assertion error: {}", stringify!($condition));
+        }
+    };
+    ($condition:expr, $($args:tt)*) => {
+        if !$condition {
+            gdnative::godot_error!($($args)*);
+            panic!($($args)*);
+        }
+    };
+}
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn godot_assert_true() {
+        godot_assert!(true)
+    }
+
+    #[test]
+    fn godot_assert_message_true() {
+        godot_assert!(true, "this should not {}", "happen")
+    }
+}
