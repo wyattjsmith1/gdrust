@@ -1,9 +1,9 @@
 use gdnative::api::{KinematicBody, Node, RigidBody, Texture};
 use gdnative::prelude::{Color, InitHandle, NodePath};
 use gdnative::{godot_init, Ref, TRef};
-use gdnative_helper::gdnative_helper_macros::gdscript;
+use gdnative_helper::gdnative_helper_macros::gdrust;
 
-gdscript! {
+gdrust! {
     class HelloWorld extends Node {
         @export var test_a: u8 = 10
         @no_export var test_b: &'static str = "Test string"

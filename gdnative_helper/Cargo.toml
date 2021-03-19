@@ -7,3 +7,5 @@ edition = "2018"
 [dependencies]
 gdnative = "0.9"
 gdnative_helper_macros = { path = "../gdnative_helper_macros" }
+euclid = "0.22"
+num-traits = "0.2"
