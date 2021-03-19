@@ -12,18 +12,22 @@
 //! be some edge cases only "true" rust can resolve, and this project should not comprimise its
 //! simplicity for the sake of covering every case.
 //!
-//! # Getting Started
-//! GdRust surfs on [`gdnative-rust`](https://github.com/godot-rust/godot-rust), so you must have
-//! [`gdnative-rust`](https://github.com/godot-rust/godot-rust) setup before you start looking at
-//! GdRust. Follow their [Getting Started Guide](https://godot-rust.github.io/#installation).
+//! # Current State
+//! Right now, this project is in an alpha state. The documented parts should work as expected,
+//! but the api is likely to change.
 //!
-//! Once `gdnative-rust` is installed, you can install GdRust by adding it as a dependency.
+//! # Getting Started
+//! gdrust surfs on [`gdnative-rust`](https://github.com/godot-rust/godot-rust), so you must have
+//! [`gdnative-rust`](https://github.com/godot-rust/godot-rust) setup before you start looking at
+//! gdrust. Follow their [Getting Started Guide](https://godot-rust.github.io/#installation).
+//!
+//! Once `gdnative-rust` is installed, you can install gdrust by adding it as a dependency.
 //! Unfortunately, due to the way `gdnative-rust` macros work, you must have both `gdnative-rust`
-//! and GdRust marked as dependencies, and you must choose compatible versions.
+//! and gdrust marked as dependencies, and you must choose compatible versions.
 //! ```ignore
 //! [dependencies]
 //! gdnative = "0.9.3"
-//! gdrust = { git = "http://github.com/TODO" }
+//! gdrust = { git = "https://github.com/wyattjsmith1/gdrust.git" }
 //! ```
 //!
 //! Once installed, simply use the `gdrust` macro:
@@ -32,9 +36,8 @@
 //! use gdnative::api::Node;
 //!
 //! gdrust! {
-//!     class HelloWorld extends Node {
-//!         @export var test: u64 = 10
-//!     }
+//!     class HelloWorld extends Node
+//!     @export var test: u64 = 10
 //! }
 //! ```
 //! That's it!
@@ -84,7 +87,7 @@
 //!
 //! ## Exporting Properties
 //! The syntax for exporting properties is intended to mirror GdScript as closely as possible. Due
-//! to the upcoming 4.0 release, GdRust uses the [4.0 syntax](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_exports.html).
+//! to the upcoming 4.0 release, gdrust uses the [4.0 syntax](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_exports.html).
 //! You can read all about the different types of exports there. Everything should be implemented as
 //! defined, except for the following:
 //!
@@ -115,7 +118,7 @@
 //!
 //!   I know this is a little weird, and I'd like to smooth it out a bit. Suggestions are welcome.
 //!
-//! 2. Unlike GdScript, GdRust signal arguments may have optional default values.
+//! 2. Unlike GdScript, gdrust signal arguments may have optional default values.
 //!
 //! ## Comprehensive Example
 //! This example should contain all possibilities for exporting properties and signals. It is used
@@ -128,57 +131,53 @@
 //!
 //!gdrust! {
 //!    #[derive(Debug)]
-//!    class HelloWorld extends Node {
-//!        @export var test_a: u8 = 10
-//!        @no_export var test_b: &'static str = "Test string"
-//!        var test_c: f32 = 10.0
+//!    class HelloWorld extends Node
+//!    @export var test_a: u8 = 10
+//!    @no_export var test_b: &'static str = "Test string"
+//!    var test_c: f32 = 10.0
+//!    @export_range(0.0, 10.0) var simple_range: f32 = 0.0
+//!    @export_range(0, 10, 2) var step_range: u8 = 2
+//!    @export_range(0, 10, "or_lesser") var simple_range_or_lesser: u64 = 10
+//!    @export_range(0.0, 10.0, 1.5, "or_lesser") var simple_range_step_or_lesser: f64 = 10.0
+//!    @export_range(0, 10, "or_greater") var simple_range_or_greater: u64 = 10
+//!    @export_range(0, 10, 10, "or_greater") var simple_range_step_or_greater: u64 = 10
+//!    @export_range(0, 10, 10, "or_lesser", "or_greater") var range_with_all: u64 = 10
+//!    @export var texture: Option<Ref<Texture>> = None
+//!    @export_enum("This", "is", "a", "test") var string_enum: String = "This".to_string()
+//!    @export_enum("This", "will", "be", "enum", "ordinals") var int_enum: u32 = 0
 //!
-//!        @export_range(0.0, 10.0) var simple_range: f32 = 0.0
-//!        @export_range(0, 10, 2) var step_range: u8 = 2
-//!        @export_range(0, 10, "or_lesser") var simple_range_or_lesser: u64 = 10
-//!        @export_range(0.0, 10.0, 1.5, "or_lesser") var simple_range_step_or_lesser: f64 = 10.0
-//!        @export_range(0, 10, "or_greater") var simple_range_or_greater: u64 = 10
-//!        @export_range(0, 10, 10, "or_greater") var simple_range_step_or_greater: u64 = 10
-//!        @export_range(0, 10, 10, "or_lesser", "or_greater") var range_with_all: u64 = 10
+//!    @export_file var file: String = "".to_string()
+//!    @export_file("*.png") var png_file: String = "".to_string()
 //!
-//!        @export var texture: Option<Ref<Texture>> = None
+//!    @export_dir var dir: String = "".to_string()
+//!    @export_global_file("*.png") var glob_file: String = "".to_string()
+//!    @export_global_dir var glob_dir: String = "".to_string()
 //!
-//!        @export_enum("This", "is", "a", "test") var string_enum: String = "This".to_string()
-//!        @export_enum("This", "will", "be", "enum", "ordinals") var int_enum: u32 = 0
+//!    @export_multiline var multiline: String = "This is multiline text".to_string()
 //!
-//!        @export_file var file: String = "".to_string()
-//!        @export_file("*.png") var png_file: String = "".to_string()
+//!    @export_exp_range(0.0, 10.0) var simple_exp_range: f32 = 0.0
+//!    @export_exp_range(0, 10, 2) var step_exp_range: u8 = 2
+//!    @export_exp_range(0, 10, "or_lesser") var simple_exp_range_or_lesser: u64 = 10
+//!    @export_exp_range(0.0, 10.0, 1.5, "or_lesser") var simple_exp_range_step_or_lesser: f64 = 10.0
+//!    @export_exp_range(0, 10, "or_greater") var simple_exp_range_or_greater: u64 = 10
+//!    @export_exp_range(0, 10, 10, "or_greater") var simple_exp_range_step_or_greater: u64 = 10
+//!    @export_exp_range(0, 10, 10, "or_lesser", "or_greater") var exp_range_with_all: u64 = 10
 //!
-//!        @export_dir var dir: String = "".to_string()
-//!        @export_global_file("*.png") var glob_file: String = "".to_string()
-//!        @export_global_dir var glob_dir: String = "".to_string()
+//!    @export var color: Color = Color::rgba(0.0, 0.0, 0.0, 0.5)
+//!    @export_color_no_alpha var color_no_alpha: Color = Color::rgb(0.0, 0.0, 0.0)
 //!
-//!        @export_multiline var multiline: String = "This is multiline text".to_string()
+//!    @export_flags("Fire", "Water", "Earth", "Wind") var spell_elements: u32 = 0
 //!
-//!        @export_exp_range(0.0, 10.0) var simple_exp_range: f32 = 0.0
-//!        @export_exp_range(0, 10, 2) var step_exp_range: u8 = 2
-//!        @export_exp_range(0, 10, "or_lesser") var simple_exp_range_or_lesser: u64 = 10
-//!        @export_exp_range(0.0, 10.0, 1.5, "or_lesser") var simple_exp_range_step_or_lesser: f64 = 10.0
-//!        @export_exp_range(0, 10, "or_greater") var simple_exp_range_or_greater: u64 = 10
-//!        @export_exp_range(0, 10, 10, "or_greater") var simple_exp_range_step_or_greater: u64 = 10
-//!        @export_exp_range(0, 10, 10, "or_lesser", "or_greater") var exp_range_with_all: u64 = 10
+//!    //TODO: NodePath types are only supported in 4.0
+//!    @export_node_path(KinematicBody, RigidBody) var physics_body: NodePath = NodePath::default()
 //!
-//!        @export var color: Color = Color::rgba(0.0, 0.0, 0.0, 0.5)
-//!        @export_color_no_alpha var color_no_alpha: Color = Color::rgb(0.0, 0.0, 0.0)
+//!    signal my_signal(int: I64, float: F64, tex: Texture)
+//!    signal typed_signal(bool: Bool = true, float: F64 = std::f64::consts::PI, tex: Texture)
 //!
-//!        @export_flags("Fire", "Water", "Earth", "Wind") var spell_elements: u32 = 0
-//!
-//!        //TODO: NodePath types are only supported in 4.0
-//!        @export_node_path(KinematicBody, RigidBody) var physics_body: NodePath = NodePath::default()
-//!
-//!        signal my_signal(int: I64, float: F64, tex: Texture)
-//!        signal typed_signal(bool: Bool = true, float: F64 = std::f64::consts::PI, tex: Texture)
-//!
-//!        @export_flags_2d_physics var layers_2d_physics: u32 = 0
-//!        @export_flags_2d_render var layers_2d_render: u32 = 0
-//!        @export_flags_3d_physics var layers_3d_physics: u32 = 0
-//!        @export_flags_3d_render var layers_3d_render: u32 = 0
-//!    }
+//!    @export_flags_2d_physics var layers_2d_physics: u32 = 0
+//!    @export_flags_2d_render var layers_2d_render: u32 = 0
+//!    @export_flags_3d_physics var layers_3d_physics: u32 = 0
+//!    @export_flags_3d_render var layers_3d_render: u32 = 0
 //!}
 //!
 //! #[gdnative::methods]
@@ -189,6 +188,30 @@
 //!     }
 //! }
 //! ```
+//!
+//! ## Pros and Cons
+//! Like any piece of software, this is not without it's issues. This list is intended to accurately
+//! document the pros and cons to help people decide if this is the right project for them.
+//!
+//! ### Pros
+//!
+//! 1. Simplifies the `ClassBuilder` chain and makes the code look more GdScripty
+//! 2. Generates a `new`
+//! 3. Synchronizes the property default with the `new` default. No more changing the default
+//! property value and not having it reflected in code.
+//!
+//! ### Cons
+//! 1. No syntax highlighting or autocomplete. This is by far the biggest issue. Most IDEs don't
+//! understand macros as well as we would like. The code in the `gdscript` block, as well as any
+//! code it generates, will not have autocompletion or syntax highlighting. Hopefully rust's tools
+//! will get better over time to improve this.
+//! 2. Like many macros, when the input is correct, they work great. When the input is invalid,
+//! they give obscure error messages. I am trying to cover most of the common error cases with clear
+//! messages. If you see weird message, open an issue and I will help you out. In general, `@export`s
+//! with values require parens (`()`) and you should always use the same type of literals (all ints
+//! or all floats).
+//! 3. Not 100% gdscript. To meet the needs of Rust this has been designed to look closely like
+//! gdscript, but there a couple exceptions.
 //!
 //! # Unsafe Functions
 //! One of the great things about rust is that it forces you to handle every possible case to ensure
@@ -211,7 +234,7 @@
 //! ```ignore
 //! get_node("Particles").start_emitting()
 //! ```
-//! Yes, the static typing does cause some verbosity, but this is still a lot. GdRust exposes a
+//! Yes, the static typing does cause some verbosity, but this is still a lot. gdrust exposes a
 //! cleaner method:
 //! ```ignore
 //! owner.require_typed_node::<Particles>().start_emitting()
@@ -221,7 +244,8 @@
 //! and a variety of unwraps. This is very unsafe, but when will this fail? Only if you request an
 //! invalid node, or break the memory model. Rust is designed to make you recover, but how do you
 //! recover from a missing node at runtime? You will probably just `unwrap` anyways to appease the
-//! compiler.
+//! compiler. This is called `unsafe_functions` because it is unsafe in the eyes of rust, but
+//! when compared to GdScript, this is pretty normal and safe.
 //!
 //! You should definitely read about the panics each method can produce and understand
 //! [`gdnative-rust`'s memory model](https://docs.rs/gdnative/0.9.3/gdnative/struct.Ref.html). Once
@@ -301,9 +325,9 @@
 //! extends Node
 //! signal tick_with_data(data)
 //! ```
-//! Again, GdScript is substantially more concise. At the bottom of this page is a sample script
-//! written in GdRust that is about 50 lines. When expanded and formatted, it expands to over 750
-//! lines! That's almost 15x larger!!!
+//! Again, GdScript is substantially more concise. At the bottom of the `gdrust` documentation is a
+//! sample script written using gdrust that is about 50 lines. When expanded and formatted, it
+//! expands to over 750 lines! That's almost 15x larger!!!
 //!
 //! So, why did `gdnative-rust` create this ridiculously verbose way of exporting properties? Well,
 //! they are just mirroring GdNative's property interface and keeping it Rusty. There is nothing
@@ -325,9 +349,11 @@
 //! them, we will likely never get 100% consistency.
 //! 3. Right now, this library only supports properties and signals. Logic is still handled in an
 //! `impl` block and is 100% rust.
+//! 4. Rust's memory model is 100% safe with gdscript. Check the [`assume_safe`](https://docs.rs/gdnative/latest/gdnative/struct.Ref.html#method.assume_safe)
+//! for more details.
 //!
-//! It is recommended that all users be familiar with `gdnative-rust` before looking at `GdRust` as
-//! `GdRust` is just some sugar to make `gdnative-rust` a bit cleaner. `GdRust` is not some magic
+//! It is recommended that all users be familiar with `gdnative-rust` before looking at `gdrust` as
+//! `gdrust` is just some sugar to make `gdnative-rust` a bit cleaner. `gdrust` is not some magic
 //! language that turns GdScript code into rust code to improve performance.
 //!
 //! ---
@@ -341,10 +367,11 @@
 //!
 //! **Q**: Will this replace `gdnative-rust` in my project?
 //!
-//! **A**: GdRust rides on top of gdnative, so you will need both side-by-side. Additionally, this
+//! **A**: gdrust rides on top of gdnative, so you will need both side-by-side. Additionally, this
 //! (currently) only supports properties and signals. Functions are still exported through an `impl`
 //! block. Lastly, while this library does improve the exporting experience, it may not cover 100%
-//! of cases. If that happens, you may need to use `gdnative-rust` for the "full feature experience".
+//! of cases. If that happens, you may need to use "plain" `gdnative-rust` for the "full feature
+//! experience".
 //!
 //! ---
 //!
@@ -366,5 +393,11 @@
 //! to rust, but rather to improve the bindings.
 //!
 //! ---
+//!
+//! **Q**: Why `class` instead of `class_name`?
+//!
+//! **A**: This is a weird abnormality with GdScript. Outer classes use the optional `class_name`,
+//! inner classes use `class`. I decided to go with `class` because `class_name` is optional in
+//! GdScript. I don't have strong feelings on this, so it may change if others do.
 pub use gdrust_macros as macros;
 pub mod unsafe_functions;

@@ -2,7 +2,7 @@ use crate::parser::gdscript_items::GdScriptItem;
 use crate::parser::gdscript_signal::GdScriptSignal;
 use crate::parser::gdscript_var::GdScriptVar;
 use syn::parse::{Parse, ParseStream};
-use syn::{braced, parse_quote, Attribute, Ident, Result, Type};
+use syn::{parse_quote, Attribute, Ident, Result, Type};
 
 mod kw {
     syn::custom_keyword!(class);
@@ -14,7 +14,6 @@ pub struct GdScriptClass {
     pub class_token: kw::class,
     pub name: Ident,
     pub extends: Option<(kw::extends, Type)>,
-    pub brace: syn::token::Brace,
     pub items: Vec<GdScriptItem>,
 }
 
@@ -58,18 +57,15 @@ impl Parse for GdScriptClass {
         } else {
             None
         };
-        let content;
-        let brace = braced!(content in input);
         let mut items = Vec::new();
-        while !content.is_empty() {
-            items.push(content.parse()?)
+        while !input.is_empty() {
+            items.push(input.parse()?)
         }
         Ok(GdScriptClass {
             attributes,
             class_token,
             name,
             extends,
-            brace,
             items,
         })
     }
