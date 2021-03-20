@@ -1,10 +1,10 @@
 use crate::parser::gdscript_signal;
 use crate::parser::gdscript_signal::GdScriptSignal;
-use crate::parser::gdscript_var::GdScriptVar;
-use syn::parse::{Parse, ParseStream, Result};
 use crate::parser::gdscript_var;
-use syn::Error;
+use crate::parser::gdscript_var::GdScriptVar;
 use proc_macro2::Span;
+use syn::parse::{Parse, ParseStream, Result};
+use syn::Error;
 
 #[derive(Clone)]
 pub enum GdScriptItem {
@@ -19,7 +19,10 @@ impl Parse for GdScriptItem {
         } else if gdscript_var::next_is_var(input) {
             Ok(GdScriptItem::Variable(input.parse()?))
         } else {
-            Err(Error::new(Span::call_site(), "Expected either a var or a signal"))
+            Err(Error::new(
+                Span::call_site(),
+                "Expected either a var or a signal",
+            ))
         }
     }
 }
