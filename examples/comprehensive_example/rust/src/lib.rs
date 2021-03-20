@@ -66,7 +66,7 @@ impl HelloWorld {
     fn _ready(&self, owner: TRef<Node>) {
         gdnative::godot_print!("Hello World!");
         gdnative::godot_dbg!(self);
-        owner.upcast::<Node>().emit_signal(Self::SIMPLE_SIGNAL, &[0.to_varian:t()]);
+        owner.upcast::<Node>().emit_signal(Self::SIMPLE_SIGNAL, &[0.to_variant()]);
     }
 }
 
