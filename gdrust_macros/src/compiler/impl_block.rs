@@ -4,14 +4,18 @@ use crate::parser::gdscript_class::GdScriptClass;
 use crate::parser::gdscript_signal::GdScriptSignal;
 use crate::parser::gdscript_var::{ExportType, GdScriptVar};
 use proc_macro2::TokenStream;
+use heck::ShoutySnakeCase;
+use proc_macro2::{Ident, Span};
 
 pub fn gd_impl(class: &GdScriptClass) -> TokenStream {
     let class_name = &class.name;
     let ty = &class.parent();
     let init_vars = init_vars(class);
+    let signal_consts = signal_consts(class);
     let register_with = register_with_fn(class);
     quote::quote! {
         impl #class_name {
+            #(#signal_consts)*
             fn new(_owner: &#ty) -> Self {
                 Self {
                     #(#init_vars,)*
@@ -34,6 +38,16 @@ fn init_vars(class: &GdScriptClass) -> Vec<TokenStream> {
             }
         })
         .collect()
+}
+
+fn signal_consts(class: &GdScriptClass) -> Vec<TokenStream> {
+    class.signals().iter().map(|x| {
+        let var_name = Ident::new(&x.name.to_string().to_shouty_snake_case(), Span::call_site());
+        let var_value = x.name.to_string();
+        quote::quote! {
+            pub const #var_name: &'static str = #var_value;
+        }
+    }).collect()
 }
 
 fn register_with_fn(class: &GdScriptClass) -> TokenStream {

@@ -13,7 +13,8 @@ script/source = "extends Node
 
 export var tex: Texture
 
-var passed = false
+var passed: bool = false
+var signal_fired: bool = false
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	var node = get_node(\"../HelloWorld\")
@@ -45,7 +46,7 @@ func _ready():
 	passed = true
 
 func _physics_process(_delta: float):
-	if passed:
+	if passed && signal_fired:
 		print(\"All tests passed!\")
 		get_tree().quit(0)
 	else:
@@ -54,6 +55,11 @@ func _physics_process(_delta: float):
 	
 func assert_float_eq(a: float, b: float):
 	assert(abs(a - b) < .001)
+
+
+func _on_HelloWorld_simple_signal(value: int):
+	assert(value == 0)
+	signal_fired = true
 "
 
 [node name="PropertyTest" type="Node"]
@@ -65,3 +71,4 @@ color = Color( 0, 0, 0, 0.501961 )
 [node name="Node" type="Node" parent="."]
 script = SubResource( 2 )
 tex = ExtResource( 2 )
+[connection signal="simple_signal" from="HelloWorld" to="Node" method="_on_HelloWorld_simple_signal"]

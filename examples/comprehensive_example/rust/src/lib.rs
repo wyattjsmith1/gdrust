@@ -1,5 +1,5 @@
 use gdnative::api::{Node, Texture};
-use gdnative::prelude::{Color, InitHandle, NodePath};
+use gdnative::prelude::{Color, InitHandle, NodePath, ToVariant};
 use gdnative::{godot_init, Ref, TRef};
 use gdrust::macros::gdrust;
 
@@ -49,6 +49,8 @@ gdrust! {
     // TODO: NodePath types are only supported in 4.0
     @export_node_path(KinematicBody, RigidBody) var physics_body: NodePath = NodePath::default()
 
+    // Signal names will also be exported as a const. See _ready below.
+    signal simple_signal(int: I64)
     signal my_signal(int: I64, float: F64, tex: Texture)
     signal typed_signal(bool: Bool = true, float: F64 = std::f64::consts::PI, tex: Texture)
 
@@ -61,9 +63,10 @@ gdrust! {
 #[gdnative::methods]
 impl HelloWorld {
     #[export]
-    fn _ready(&self, _owner: TRef<Node>) {
+    fn _ready(&self, owner: TRef<Node>) {
         gdnative::godot_print!("Hello World!");
         gdnative::godot_dbg!(self);
+        owner.upcast::<Node>().emit_signal(Self::SIMPLE_SIGNAL, &[0.to_varian:t()]);
     }
 }
 

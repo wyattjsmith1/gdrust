@@ -3,3 +3,6 @@
 [resource]
 entry/OSX.64 = "res://../../target/debug/librust.dylib"
 dependency/OSX.64 = [  ]
+
+entry/Windows.64 = "res://../../target/debug/rust.dll"
+dependency/Windows.64 = [  ]
