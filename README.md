@@ -38,7 +38,7 @@ use gdrust::macros::gdrust;
 use gdnative::api::Node;
 
 gdrust! {
-    class HelloWorld extends Node
+    class_name HelloWorld extends Node
     @export var test: u64 = 10
 }
 ```
@@ -53,14 +53,16 @@ in-depth comprehensive example.
 Rust doesn't have the concept of a "`class`", but Godot does. To make things a bit more GdScript
 friendly, regular class notation is used:
 ```rust
-class ClassName extends KinematicBody {
+gdrust::macros::gdrust! {
+    class_name ClassName extends gdnative::api::KinematicBody
     // Same as `class_name ClassName extends KinematicBody` in GdScript.
 }
 ```
 
 The `extends Parent` is optional, and may be omitted if you are just extending `Object`:
 ```rust
-class ClassName extends KinematicBody {
+gdrust::macros::gdrust! {
+    class_name ClassName extends gdnative::api::KinematicBody
     // Same as `class_name ClassName extends Object` in GdScript.
 }
 ```
@@ -68,8 +70,9 @@ class ClassName extends KinematicBody {
 You can still have custom derives and attributes on your class. Any attributes on `class` will
 be added:
 ```rust
-#[derive(Debug)]
-class ClassName extends KinematicBody {
+gdrust::macros::gdrust! {
+    #[derive(Debug)]
+    class_name ClassName extends gdnative::api::KinematicBody
     // `ClassName` will derive `Debug`
 }
 ```
@@ -78,9 +81,9 @@ After you create the class and export properties and signals, create your `impl`
 usual. Note, you should not create the `new` function. That is provided by the macro:
 ```rust
 #[gdnative::methods]
-impl HelloWorld {
+impl ClassName {
     #[export]
-    fn _ready(&self, _owner: TRef<Node>) {
+    fn _ready(&self, _owner: TRef<KinematicBody>) {
         gdnative::godot_print!("Hello World!")
     }
 }
@@ -132,7 +135,7 @@ use gdrust::macros::gdrust;
 
 gdrust! {
    #[derive(Debug)]
-   class HelloWorld extends Node
+   class_name HelloWorld extends Node
    @export var test_a: u8 = 10
    @no_export var test_b: &'static str = "Test string"
    var test_c: f32 = 10.0
