@@ -14,7 +14,8 @@ Godot would be great.
 This project will hopefully get better over time, and that starts with proposals. In 
 general, please ensure proposals follow this project's philosophy of improving 90% of
 use cases. We are trying to keep the syntax as close to GdScript as possible and are
-favoring readability over supporting 100% of cases.
+favoring readability over supporting 100% of cases. Additionally, please try to mirror
+Godot 4.0's syntax as much as possible.
 
 ### Creating PRs
 PRs are always welcome. If you are making a PR to resolve a specific issue, please link 

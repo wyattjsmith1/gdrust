@@ -5,13 +5,13 @@ use syn::parse::{Parse, ParseStream};
 use syn::{parse_quote, Attribute, Ident, Result, Type};
 
 mod kw {
-    syn::custom_keyword!(class);
+    syn::custom_keyword!(class_name);
     syn::custom_keyword!(extends);
 }
 
 pub struct GdScriptClass {
     pub attributes: Vec<Attribute>,
-    pub class_token: kw::class,
+    pub class_token: kw::class_name,
     pub name: Ident,
     pub extends: Option<(kw::extends, Type)>,
     pub items: Vec<GdScriptItem>,
@@ -50,7 +50,7 @@ impl GdScriptClass {
 impl Parse for GdScriptClass {
     fn parse(input: ParseStream) -> Result<Self> {
         let attributes = input.call(Attribute::parse_outer)?;
-        let class_token = input.parse::<kw::class>()?;
+        let class_token = input.parse()?;
         let name = input.parse()?;
         let extends = if input.peek(kw::extends) {
             Some((input.parse()?, input.parse()?))
