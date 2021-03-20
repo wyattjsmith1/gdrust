@@ -9,22 +9,23 @@ GdScript-like. This contains two main parts:
 2. A set of "unsafe" functions to make things more concise at the risk of crashing.
 
 ## Goals
-Ultimately, the goal of this project is to make coding much easier in 90% of cases. There may
+Ultimately, the goal of this project is rust development for Godot more concise in 90% of cases. There may
 be some edge cases only "true" rust can resolve, and this project should not comprimise its
 simplicity for the sake of covering every case.
 
 ## Current State
-Right now, this project is in an alpha state. The documented parts should work as expected,
+Right now, this project is in an early alpha state. The documented parts should work as expected,
 but the api is likely to change.
 
 ## Getting Started
-gdrust surfs on [`gdnative-rust`](https://github.com/godot-rust/godot-rust), so you must have
+`gdrust` surfs on [`gdnative-rust`](https://github.com/godot-rust/godot-rust), so you must have
 [`gdnative-rust`](https://github.com/godot-rust/godot-rust) setup before you start looking at
-gdrust. Follow their [Getting Started Guide](https://godot-rust.github.io/#installation).
+`gdrust`. Follow their [Getting Started Guide](https://godot-rust.github.io/#installation).
 
-Once `gdnative-rust` is installed, you can install gdrust by adding it as a dependency.
+Once `gdnative-rust` is installed, you can install `gdrust` by adding it as a dependency.
 Unfortunately, due to the way `gdnative-rust` macros work, you must have both `gdnative-rust`
-and gdrust marked as dependencies, and you must choose compatible versions.
+and `gdrust` added as dependencies, and you must choose compatible versions. See the
+"Compatibilty" section below.
 ```rust
 [dependencies]
 gdnative = "0.9.3"
@@ -73,7 +74,6 @@ class ClassName extends KinematicBody {
 }
 ```
 
-
 After you create the class and export properties and signals, create your `impl` block as
 usual. Note, you should not create the `new` function. That is provided by the macro:
 ```rust
@@ -88,7 +88,7 @@ impl HelloWorld {
 
 ### Exporting Properties
 The syntax for exporting properties is intended to mirror GdScript as closely as possible. Due
-to the upcoming 4.0 release, gdrust uses the [4.0 syntax](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_exports.html).
+to the upcoming 4.0 release, `gdrust` uses the [4.0 syntax](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_exports.html).
 You can read all about the different types of exports there. Everything should be implemented as
 defined, except for the following:
 
@@ -119,7 +119,7 @@ as closely as possible. Similar to properties, there are a few gotchas with sign
 
   I know this is a little weird, and I'd like to smooth it out a bit. Suggestions are welcome.
 
-2. Unlike GdScript, gdrust signal arguments may have optional default values.
+2. Unlike GdScript, `gdrust` signal arguments may have optional default values.
 
 ### Comprehensive Example
 This example should contain all possibilities for exporting properties and signals. It is used
@@ -235,7 +235,7 @@ Compare to GdStript (without the $ sugar):
 ```rust
 get_node("Particles").start_emitting()
 ```
-Yes, the static typing does cause some verbosity, but this is still a lot. gdrust exposes a
+Yes, the static typing does cause some verbosity, but this is still a lot. `gdrust` exposes a
 cleaner method:
 ```rust
 owner.require_typed_node::<Particles>().start_emitting()
@@ -257,157 +257,13 @@ Unfortunately, `gdrust` requires the `gdnative` dependency, and it can not be `p
 to the way `gdnative`'s macros work. As as result, you must ensure you have a compatible version
 of both `gdrust` and `gdnative`. This table will be updated with all compatible versions:
 
-| gdrust  | gdnative |
+| `gdrust`  | `gdnative-rust` |
 |---------|----------|
 | `0.1.0` | `0.9.+`  |
 
-
-## Reasoning For This Project
-The team at [`gdnative-rust`](https://github.com/godot-rust/godot-rust) has done a wonderful job
-of making it possible to add Rust code to Godot. The main goal of their project is to enable
-developers to create safe, Rusty code for Godot, and that is now a reality.
-
-One of the shortcommings of `gdnative-rust` is that it is, well, very Rusty. Rust is a great
-language for many things, but the translation with Godot becomes a bit rocky sometimes. One such
-example is Rust's separation of data and logic through `struct`s and `impl`s. This undoubtedly
-leads to better code, but doesn't work too well with Godot, which uses `class`es because
-properties are part of the data (`struct`), but exposed in logic (`impls`).
-
-To surface an example: exporting properties. Currently, using `gdnative-rust` we must export
-properties like:
-```rust
-#[derive(gdnative::NativeClass)]
-#[inherit(MeshInstance)]
-#[register_with(register_properties)]
-struct RustTest {
-    test: u64,
-}
-fn register_properties(builder: &ClassBuilder<RustTest>) {
-    builder
-        .add_property::<String>("test/test_enum")
-        .with_hint(IntHint::Enum(EnumHint::new(vec![
-            "Hello".into(),
-            "World".into(),
-            "Testing".into(),
-        ])))
-        .with_getter(|this: &RustTest, _| this.test)
-        .with_setter(|this: &mut RustTest, _, value| this.test = value)
-        .done();
-}
-```
-Users may optionally use the `#[property]` macro, but that prevents the user from creating
-signals, and exposes very little in the way of export hints.
-
-When you compare the block above to the equivalent GdScript, you see there is a huge difference:
-```gdscript
-class_name RustTest
-extends MeshInstance
-@export_enum("Hello", "World", "Testing") var test
-```
-
-To offer another example, let's look at signals:
-```rust
-#[derive(NativeClass)]
-#[inherit(Node)]
-#[register_with(Self::register_signals)]
-struct SignalEmitter {
-    timer: f64,
-    data: i64,
-}
-#[methods]
-impl SignalEmitter {
-    fn register_signals(builder: &ClassBuilder<Self>) {
-        builder.add_signal(Signal {
-            name: "tick_with_data",
-            args: &[SignalArgument {
-                name: "data",
-                default: Variant::from_i64(100),
-                export_info: ExportInfo::new(VariantType::I64),
-                usage: PropertyUsage::DEFAULT,
-            }],
-        });
-    }
-}
-```
-And the equivalent GdScript:
-```gdscript
-class_name SignalEmitter
-extends Node
-signal tick_with_data(data)
-```
-Again, GdScript is substantially more concise. At the bottom of the `gdrust` documentation is a
-sample script written using gdrust that is about 50 lines. When expanded and formatted, it
-expands to over 750 lines! That's almost 15x larger!!!
-
-So, why did `gdnative-rust` create this ridiculously verbose way of exporting properties? Well,
-they are just mirroring GdNative's property interface and keeping it Rusty. There is nothing
-wrong with this method (in fact, it gives developers full functionallity), but it can be
-overwhelming when compared to GdScript or most other Godot-supported languages.
-
-Some developers may be torn between the saftey of Rust and the speed and conciseness of
-GdScript. This library attempts to take the best of both Rust and GdScript to enable concise,
-fast, and safe code for Godot.
-
-## FAQ
-**Q**: I don't have experince in Rust; I just know GdScript. Can I just paste my scripts here for
-fast code?
-
-**A**: No. Not at all. This will never happen. There are a number of reasons why:
-
-1. GdScript is dynamically typed, Rust is statically typed.
-2. Rust and GdScript have completely different types. While there is some translation between
-them, we will likely never get 100% consistency.
-3. Right now, this library only supports properties and signals. Logic is still handled in an
-`impl` block and is 100% rust.
-4. Rust's memory model is 100% safe with gdscript. Check the [`assume_safe`](https://docs.rs/gdnative/latest/gdnative/struct.Ref.html#method.assume_safe)
-for more details.
-
-It is recommended that all users be familiar with `gdnative-rust` before looking at `gdrust` as
-`gdrust` is just some sugar to make `gdnative-rust` a bit cleaner. `gdrust` is not some magic
-language that turns GdScript code into rust code to improve performance.
-
----
-
-**Q**: Will this be pushed to [`crates.io`](crates.io)?
-
-**A**: Eventually, yes. Right now, I am still in the early testing phase. If this turns out to
-be useful to others and of beta quality, I will definitely push it to `crates.io`.
-
----
-
-**Q**: Will this replace `gdnative-rust` in my project?
-
-**A**: gdrust rides on top of gdnative, so you will need both side-by-side. Additionally, this
-(currently) only supports properties and signals. Functions are still exported through an `impl`
-block. Lastly, while this library does improve the exporting experience, it may not cover 100%
-of cases. If that happens, you may need to use "plain" `gdnative-rust` for the "full feature
-experience".
-
----
-
-**Q**: Will this ever be merged with `gdnative-rust`?
-
-**A**: While I am open to the idea, I don't think it's the right direction for `gdnative-rust`.
-This macro defines code that is very unrust-like; that is the goal of this project.
-`gdnative-rust` tends to focus more on the Rusty way to do things.
-
----
-
-**Q**: Why create some abominable "language" halfway between Rust and GdScript? If users like
-GdScript so much, they should just use it.
-
-**A**: This is a good question. I don't see this library as being the best thing for every
-project, but I do think it can greatly improve most projects. When I look at my games, I see that
-the Godot Object makes up an insiginificant part of my logic. Much of my logic is delegated to
-other "true rust" functions. This project is not intended to create a new language that complies
-to rust, but rather to improve the bindings.
-
----
-
-**Q**: Why `class` instead of `class_name`?
-
-**A**: This is a weird abnormality with GdScript. Outer classes use the optional `class_name`,
-inner classes use `class`. I decided to go with `class` because `class_name` is optional in
-GdScript. I don't have strong feelings on this, so it may change if others do.
+## Additional Reading
+- [Contributing](./CONTRIBUTING.md)
+- [Reasoning for this project](./docs/why_gdrust.md)
+- [FAQs](./docs/faq.md)
 
 License: MIT

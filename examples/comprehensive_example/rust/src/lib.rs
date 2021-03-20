@@ -5,7 +5,7 @@ use gdrust::macros::gdrust;
 
 gdrust! {
     #[derive(Debug)]
-    class HelloWorld extends Node
+    class_name HelloWorld extends Node
 
     @export var test_a: u8 = 10
     @no_export var test_b: &'static str = "Test string"

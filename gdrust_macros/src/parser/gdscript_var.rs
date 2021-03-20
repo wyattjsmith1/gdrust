@@ -334,3 +334,7 @@ impl Parse for ExportType {
         }
     }
 }
+
+pub(crate) fn next_is_var(input: ParseStream) -> bool {
+    input.peek(Token![@]) || input.peek(kw::var)
+}
