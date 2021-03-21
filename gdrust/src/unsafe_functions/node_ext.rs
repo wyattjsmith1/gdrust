@@ -1,4 +1,5 @@
 use crate::unsafe_functions::option_ext::OptionExt;
+use gdnative::api::SceneTree;
 use gdnative::prelude::{Node, NodePath, Shared, SubClass};
 use gdnative::NewRef;
 use gdnative::TRef;
@@ -9,18 +10,24 @@ pub trait NodeExt {
     /// # Panics
     /// - If no node is found at the path.
     /// - If a node is found at the path, but is not the correct type.
-    fn require_typed_node<T: SubClass<Node>, P: Into<NodePath>>(&self, path: P) -> TRef<T>;
+    fn expect_node<T: SubClass<Node>, P: Into<NodePath>>(&self, path: P) -> TRef<T>;
 
-    /// Gets the parent node with a type. This has an explicit `unsafe` block, and can panic.The
+    /// Gets the parent node with a type. This has an explicit `unsafe` block, and can panic. The
     /// unsafe code is calling `assume_safe` on the parent node.
     /// # Panics
     /// - If no parent is found (root node).
     /// - If a node is found at the path, but is not the correct type.
-    fn parent_as<T: SubClass<Node>>(&self) -> TRef<T>;
+    fn expect_parent<T: SubClass<Node>>(&self) -> TRef<T>;
+
+    /// Gets the scene tree. This has an explicit `unsafe` block, and can panic. The unsafe code is
+    /// calling `assume_safe` on the scene tree.
+    /// # Panics
+    /// - If the scene tree is not found.
+    fn expect_tree(&self) -> TRef<SceneTree>;
 }
 
 impl<'a, T: SubClass<Node>> NodeExt for TRef<'a, T> {
-    fn require_typed_node<Child: SubClass<Node>, P: Into<NodePath>>(
+    fn expect_node<Child: SubClass<Node>, P: Into<NodePath>>(
         &self,
         path: P,
     ) -> TRef<'a, Child, Shared> {
@@ -37,7 +44,7 @@ impl<'a, T: SubClass<Node>> NodeExt for TRef<'a, T> {
         }
     }
 
-    fn parent_as<Child: SubClass<Node>>(&self) -> TRef<'a, Child, Shared> {
+    fn expect_parent<Child: SubClass<Node>>(&self) -> TRef<'a, Child, Shared> {
         unsafe {
             self.upcast()
                 .get_parent()
@@ -45,6 +52,15 @@ impl<'a, T: SubClass<Node>> NodeExt for TRef<'a, T> {
                 .assume_safe()
                 .cast::<Child>()
                 .godot_expect("Could not cast")
+        }
+    }
+
+    fn expect_tree(&self) -> TRef<'a, SceneTree, Shared> {
+        unsafe {
+            self.upcast()
+                .get_tree()
+                .godot_expect("Expected scene tree, but couldn't find it")
+                .assume_safe()
         }
     }
 }
