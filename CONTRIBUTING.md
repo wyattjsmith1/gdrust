@@ -34,7 +34,7 @@ Additional `unsafe_function`s are always welcome. When designing a new one, plea
 consider the following:
 
 1. **Does this replicate a gdscript behavior?** In general, we want to only add functions
-that expose some gdscript behavior. For example, `require_typed_node()` functions the same
+that expose some gdscript behavior. For example, `require_node()` functions the same
 as `get_node()` in gdscript.
 2. **How safe is it?** Yes, it is called `unsafe_functions`, but this is unsafe in the
 context of rust. Much like the comment above, we should be trying to duplicate some 
@@ -42,3 +42,6 @@ gdscript feature as well as its risks. All panics should be clearly documented a
 intuitive given the function name, and all unsafe code should be documented and safe 
 in standard use cases. Simply stating that a function calls `assume_safe()` is a good
 enough hint for the user.
+3. **Is the name clear enough?** In general, you can replace `get_` with `require_`. If 
+your function does more than that, make sure the name outlines the potential issues. For
+example, `require_node()` implies there will be an issue if the node is not there.
