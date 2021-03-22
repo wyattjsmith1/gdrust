@@ -1,9 +1,9 @@
 use gdnative::api::{Node, Texture};
 use gdnative::prelude::{Color, InitHandle, NodePath, ToVariant};
 use gdnative::{godot_init, Ref, TRef};
-use gdrust::macros::gdrust2;
+use gdrust::macros::gdrust;
 
-#[gdrust2(extends = Node)]
+#[gdrust(extends = Node)]
 #[signal(my_signal(arg1: F64, arg2: GodotString = "test".to_string()))]
 #[signal(simple_signal(arg:I64))]
 #[derive(Debug)]

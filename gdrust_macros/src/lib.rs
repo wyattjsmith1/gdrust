@@ -22,7 +22,7 @@ impl Parse for Extends {
 }
 
 #[proc_macro_attribute]
-pub fn gdrust2(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn gdrust(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut parsed = syn::parse_macro_input!(item as ItemStruct);
     let extends = syn::parse_macro_input!(attr as Extends);
     let compiled = compiler::compile(&mut parsed, &extends);
