@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 mod compiler;
 
 use syn::parse::{Parse, ParseStream};
-use syn::{ItemStruct, Result, Token, Type};
+use syn::{parse_quote, ItemStruct, Result, Token, Type};
 
 mod kw {
     syn::custom_keyword!(extends);
@@ -24,7 +24,9 @@ impl Parse for Extends {
 #[proc_macro_attribute]
 pub fn gdrust(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut parsed = syn::parse_macro_input!(item as ItemStruct);
-    let extends = syn::parse_macro_input!(attr as Extends);
+    let extends = syn::parse_macro_input::parse::<Extends>(attr).unwrap_or(Extends {
+        ty: parse_quote! { gdnative::api::Object },
+    });
     let compiled = compiler::compile(&mut parsed, &extends);
     // println!("{}", compiled.to_string());
     compiled.into()

@@ -53,7 +53,7 @@
 //! ## Exporting properties and signals
 //! The `extends = {classname}` is optional, and may be omitted if you are just extending `Object`:
 //! ```
-//! #[gdrust]
+//! #[gdrust::macros::gdrust]
 //! struct ClassName {
 //!     // Same as `class_name ClassName extends Object` in GdScript.
 //! }
@@ -74,7 +74,7 @@
 //! ```
 //!# use gdnative::prelude::*;
 //!# use gdnative::api::*;
-//!# #[gdrust::macros::gdrust]
+//!# #[gdrust::macros::gdrust(extends = KinematicBody)]
 //!# #[derive(Debug)]
 //!# struct ClassName;
 //!
@@ -251,7 +251,7 @@
 //!     #[export_flags("Fire", "Water", "Earth", "Wind")]
 //!     spell_elements: u32,
 //!
-//!     //! TODO: NodePath types are only supported in 4.0
+//!     // TODO: NodePath types are only supported in 4.0
 //!     #[export_node_path(KinematicBody, RigidBody)]
 //!     physics_body: NodePath,
 //!
