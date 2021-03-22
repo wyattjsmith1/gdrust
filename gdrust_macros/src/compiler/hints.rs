@@ -1,31 +1,31 @@
-use crate::parser::gdscript_var::{
+use crate::compiler::properties::{
     ExportEnum, ExportExpRange, ExportFile, ExportFlags, ExportGlobalFile, ExportNodePath,
     ExportRange, ExportType,
 };
 use proc_macro2::TokenStream;
-use syn::{parse_quote, Lit, Type};
+use syn::{parse_quote, Lit, LitStr, Type};
 
 pub(crate) fn property_hint(export: &ExportType, ty: &Type) -> TokenStream {
     match export {
-        ExportType::NoHint | ExportType::Export(_) => quote::quote! {},
-        ExportType::NoExport(_) => {
+        ExportType::NoHint | ExportType::Export => quote::quote! {},
+        ExportType::NoExport => {
             panic!("Should only call property_hint if there is an export. Found NoExport")
         }
         ExportType::ExportRange(export_range) => export_range_hint(export_range, ty),
         ExportType::ExportExpRange(exp_range) => export_exp_range_hint(exp_range, ty),
         ExportType::ExportEnum(export_enum) => export_enum_hint(export_enum, ty),
         ExportType::ExportFile(file) => export_file_hint(file),
-        ExportType::ExportDir(_) => export_dir_hint(),
+        ExportType::ExportDir => export_dir_hint(),
         ExportType::ExportGlobalFile(global_file) => export_global_file_hint(global_file),
-        ExportType::ExportGlobalDir(_) => export_global_dir_hint(),
-        ExportType::ExportMultiline(_) => export_multiline_hint(),
-        ExportType::ExportColorNoAlpha(_) => export_color_no_alpha_hint(),
+        ExportType::ExportGlobalDir => export_global_dir_hint(),
+        ExportType::ExportMultiline => export_multiline_hint(),
+        ExportType::ExportColorNoAlpha => export_color_no_alpha_hint(),
         ExportType::ExportNodePath(node_path) => export_node_path_hint(node_path),
         ExportType::ExportFlags(flags) => export_flags_hint(flags),
-        ExportType::ExportFlags2dPhysics(_) => export_flags_2d_physics_hint(),
-        ExportType::ExportFlags2dRender(_) => export_flags_2d_render_hint(),
-        ExportType::ExportFlags3dPhysics(_) => export_flags_3d_physics_hint(),
-        ExportType::ExportFlags3dRender(_) => export_flags_3d_render_hint(),
+        ExportType::ExportFlags2dPhysics => export_flags_2d_physics_hint(),
+        ExportType::ExportFlags2dRender => export_flags_2d_render_hint(),
+        ExportType::ExportFlags3dPhysics => export_flags_3d_physics_hint(),
+        ExportType::ExportFlags3dRender => export_flags_3d_render_hint(),
     }
 }
 
@@ -78,7 +78,7 @@ fn export_range_hint_helper(range: &[&Lit], ty: &Type, is_exp: bool) -> TokenStr
     if is_float(ty) {
         quote::quote! {
             .with_hint(gdnative::nativescript::init::property::FloatHint::#range_type(
-                gdnative::nativescript::property::RangeHint::new(#min, #max)
+                gdnative::nativescript::property::RangeHint::new(#min.into(), #max.into())
                     #step
                     #or_lesser
                     #or_greater
