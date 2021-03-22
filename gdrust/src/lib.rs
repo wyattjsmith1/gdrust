@@ -4,7 +4,7 @@
 //! A library for making [`gdnative-rust`](https://github.com/godot-rust/godot-rust) a bit more
 //! GdScript-like. This contains two main parts:
 //!
-//! 1. A `gdrust!` macro for simplifying some rust code and making it more GdScript-like.
+//! 1. A `#[gdrust]` macro for simplifying some rust code and making it more GdScript-like.
 //! 2. A set of "unsafe" functions to make things more concise at the risk of crashing.
 //!
 //! # Goals
@@ -25,7 +25,7 @@
 //! Unfortunately, due to the way `gdnative-rust` macros work, you must have both `gdnative-rust`
 //! and `gdrust` added as dependencies side-by-side, and you must choose compatible versions. See the
 //! "Compatibilty" section below.
-//! ```ignore
+//! ```toml
 //! [dependencies]
 //! gdnative = "0.9.3"
 //! gdrust = { git = "https://github.com/wyattjsmith1/gdrust.git" }
@@ -48,9 +48,18 @@
 //! Read more below for details and gotchas with exporting properties and signals, as well as an
 //! in-depth comprehensive example.
 //!
-//! # `gdrust!` Macro
+//! # `#[gdrust]` Macro
 //!
-//! ## Exporting properties and signals
+//! ## Exporting classes
+//! Anything in a `#[gdrust]` macro is avaliable for export.
+//! ```
+//!# use gdnative::prelude::*;
+//!# use gdrust::macros::gdrust;
+//! #[gdrust(extends = Node)]
+//! pub struct ClassName {
+//!    // Same as `class_name ClassName extends Node` in GdScript.
+//! }
+//! ```
 //! The `extends = {classname}` is optional, and may be omitted if you are just extending `Object`:
 //! ```
 //! #[gdrust::macros::gdrust]
@@ -90,8 +99,23 @@
 //! ## Exporting Properties
 //! The syntax for exporting properties is intended to mirror GdScript as closely as possible. Due
 //! to the upcoming 4.0 release, `gdrust` uses the [4.0 exports](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_exports.html).
-//! You can read all about the different types of exports there. Everything should be implemented as
-//! defined, except for the following:
+//! You can read all about the different types of exports there.
+//!
+//! In general, use attribute syntax (`#[export_...]`), and remove the `@` at the start of GdScript
+//! export. For example:
+//! ```gdscript
+//! @export_range(1, 10, 2, "or_greater") var my_range: int
+//! ```
+//! Becomes:
+//! ```
+//!# #[gdrust::macros::gdrust]
+//!# pub struct Test {
+//! #[export_range(1, 10, 2, "or_greater")]
+//! my_range: i32 // or i64 if you want
+//!# }
+//! ```
+//!
+//! Everything should be implemented as defined in Godot's docs except for the following:
 //!
 //! 1. `#[no_export]` can be used to not export a variable. This should be used for all Rust-native
 //! types (doesn't implement `Export`) or if you want the variable to be "private".
@@ -99,10 +123,9 @@
 //! only matches nodes with given types. This is partially implemented, but won't be finished until
 //! 4.0 because there is currently not export hint for NodePaths. You can currently include this
 //! export in your code, but it will allow a `NodePath` to any type.
-//! 3. Nullability is handled with an `Option`..
+//! 3. Nullability is handled with an `Option`.
 //! 4. Every exported property will require both a type and a default value. If no default value is
-//! provided, `Default::default()` will be used. There
-//! is no type inference with the #[default(value)] annotation. If you are referencing a Godot
+//! provided, `Default::default()` will be used. If you are referencing a Godot
 //! object and not a "primitive", this must be wrapped in a `Ref`.
 //! 5. Currently, arrays are not supported. This is simply because I am not confident the syntax
 //! has been finalized. On Godot's site, it shows the traditional `export(Array, int) var ints = [1, 2, 3]`.
@@ -116,10 +139,11 @@
 //! ## Exporting Signals
 //! The syntax for exporting signals is also intended to mirror [GdScript](https://docs.godotengine.org/en/latest/getting_started/step_by_step/signals.html#custom-signals)
 //! as closely as possible. The syntax is:
-//! ```ignore
-//! #[signal(signal_name(arg_name: arg_type, arg2_name: arg_type = default_value))]
-//! #[signal(signal_name(arg_name: arg_type = default, arg2_name: arg_type = default_value))]
+//! ```
+//!# use gdrust::macros::gdrust;
 //! #[gdrust]
+//! #[signal(signal_name(arg_name: I64, arg2_name: F64 = 10.0))]
+//! #[signal(other_signal(arg_name: Bool = true, arg2_name: GodotString = "default"))]
 //! struct Class;
 //! ```
 //!
@@ -133,12 +157,15 @@
 //!
 //! 2. Unlike GdScript, `gdrust` signal arguments may have optional default values.
 //!
+//! When a signal is exported, there will be a `const` with its name. Look at the `simple_signal`
+//! signal in the example below to see how it can be used.
+//!
 //! ## Comprehensive Example
 //! This example should contain all possibilities for exporting properties and signals. It is used
 //! for testing as well.
-//! ```no_run
+//! ```
 //!use gdnative::api::{KinematicBody, Node, RigidBody, Texture};
-//!use gdnative::prelude::{Color, InitHandle, NodePath};
+//!use gdnative::prelude::{Color, InitHandle, NodePath, ToVariant};
 //!use gdnative::{godot_init, Ref, TRef};
 //!use gdrust::macros::gdrust;
 //!
@@ -271,8 +298,12 @@
 //! #[gdnative::methods]
 //! impl HelloWorld {
 //!     #[export]
-//!     fn _ready(&self, _owner: TRef<Node>) {
-//!         gdnative::godot_print!("Hello World!")
+//!     fn _ready(&self, owner: TRef<Node>) {
+//!         gdnative::godot_print!("Hello World!");
+//!         gdnative::godot_dbg!(self);
+//!         owner
+//!            .upcast::<Node>()
+//!            .emit_signal(Self::SIMPLE_SIGNAL, &[0.to_variant()]);
 //!     }
 //! }
 //! ```
@@ -299,33 +330,42 @@
 //! the runtime goes smoothly. One issue with this is game development is full of "well, I hope this
 //! works" cases in which error handling is ignored until runtime.
 //!
-//! For example, let's say you want to get a child node and call `start_emitting()` on it. In
+//! For example, let's say you want to get a child node and call `set_emitting()` on it. In
 //! `gdnative-rust`, you would do this:
-//! ```ignore
+//! ```
+//!# use gdnative::api::Particles;
+//!# fn test(owner: gdnative::TRef<Particles>) {
 //! unsafe {
 //!     owner.get_node("Particles")
 //!         .unwrap()
 //!         .assume_safe()
 //!         .cast::<Particles>()
 //!         .unwrap()
-//!         .start_emitting();
+//!         .set_emitting(true);
 //! }
+//!# }
 //! ```
 //! Compare to GdStript (without the $ sugar):
-//! ```ignore
+//! ```gdscript
 //! get_node("Particles").start_emitting()
 //! ```
-//! Yes, the static typing does cause some verbosity, but this is still a lot. `gdrust` exposes a
-//! cleaner method:
-//! ```ignore
-//! owner.require_typed_node::<Particles>().start_emitting()
+//! Yes, the static typing does cause some verbosity in the rust example, but this is still a lot.
+//! `gdrust` exposes a cleaner method:
+//! ```
+//!# use gdnative::api::Particles;
+//!# use gdrust::unsafe_functions::node_ext::NodeExt;
+//!# fn test(owner: gdnative::TRef<Particles>) {
+//! owner.expect_node::<Particles, _>("Particles").set_emitting(true)
+//!# }
 //! ```
 //! Not quite as concise as GdScript, but still more concise than `gdnative-rust`. One thing to note:
 //! this function almost literally translates to the code above. There is an explicit `unsafe` block,
 //! and a variety of unwraps. This is very unsafe, but when will this fail? Only if you request an
 //! invalid node, or break the memory model. Rust is designed to make you recover, but how do you
 //! recover from a missing node at runtime? You will probably just `unwrap` anyways to appease the
-//! compiler. This is called `unsafe_functions` because it is unsafe in the eyes of rust, but
+//! compiler.
+//!
+//! As a result, this is called `unsafe_functions` because it is unsafe in the eyes of rust, but
 //! when compared to GdScript, this is pretty normal and safe.
 //!
 //! You should definitely read about the panics each method can produce and understand

@@ -13,7 +13,7 @@ Godot would be great.
 ### Making Suggestions
 This project will hopefully get better over time, and that starts with proposals. In 
 general, please ensure proposals follow this project's philosophy of improving 90% of
-use cases. We are trying to keep the syntax as close to GdScript as possible and are
+use cases. We are trying to keep the syntax close to GdScript and are
 favoring readability over supporting 100% of cases. Additionally, please try to mirror
 Godot 4.0's syntax as much as possible.
 
@@ -34,7 +34,7 @@ Additional `unsafe_function`s are always welcome. When designing a new one, plea
 consider the following:
 
 1. **Does this replicate a gdscript behavior?** In general, we want to only add functions
-that expose some gdscript behavior. For example, `require_node()` functions the same
+that expose some gdscript behavior. For example, `expect_node()` functions the same
 as `get_node()` in gdscript.
 2. **How safe is it?** Yes, it is called `unsafe_functions`, but this is unsafe in the
 context of rust. Much like the comment above, we should be trying to duplicate some 
@@ -42,6 +42,6 @@ gdscript feature as well as its risks. All panics should be clearly documented a
 intuitive given the function name, and all unsafe code should be documented and safe 
 in standard use cases. Simply stating that a function calls `assume_safe()` is a good
 enough hint for the user.
-3. **Is the name clear enough?** In general, you can replace `get_` with `require_`. If 
+3. **Is the name clear enough?** In general, you can replace `get_` with `expect_`. If 
 your function does more than that, make sure the name outlines the potential issues. For
-example, `require_node()` implies there will be an issue if the node is not there.
+example, `expect_node()` implies there will be an issue if the node is not there.

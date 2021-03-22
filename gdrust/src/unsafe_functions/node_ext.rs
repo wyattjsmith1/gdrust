@@ -10,6 +10,11 @@ pub trait NodeExt {
     /// # Panics
     /// - If no node is found at the path.
     /// - If a node is found at the path, but is not the correct type.
+    ///
+    /// # GdScript equivalent
+    /// ```gdscript
+    /// get_node(path)
+    /// ```
     fn expect_node<T: SubClass<Node>, P: Into<NodePath>>(&self, path: P) -> TRef<T>;
 
     /// Gets the parent node with a type. This has an explicit `unsafe` block, and can panic. The
@@ -17,12 +22,22 @@ pub trait NodeExt {
     /// # Panics
     /// - If no parent is found (root node).
     /// - If a node is found at the path, but is not the correct type.
+    ///
+    /// # GdScript equivalent
+    /// ```gdscript
+    /// get_parent()
+    /// ```
     fn expect_parent<T: SubClass<Node>>(&self) -> TRef<T>;
 
     /// Gets the scene tree. This has an explicit `unsafe` block, and can panic. The unsafe code is
     /// calling `assume_safe` on the scene tree.
     /// # Panics
     /// - If the scene tree is not found.
+    ///
+    /// # GdScript Equivalent
+    /// ```gdscript
+    /// get_tree()
+    /// ```
     fn expect_tree(&self) -> TRef<SceneTree>;
 }
 

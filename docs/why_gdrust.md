@@ -11,6 +11,7 @@ properties are part of the data (`struct`), but exposed in logic (`impls`).
 
 To surface an example: exporting properties. Currently, using `gdnative-rust` we must export
 properties like:
+
 ```rust
 #[derive(gdnative::NativeClass)]
 #[inherit(MeshInstance)]
@@ -32,7 +33,7 @@ fn register_properties(builder: &ClassBuilder<RustTest>) {
 }
 ```
 Users may optionally use the `#[property]` macro, but that prevents the user from creating
-signals, and exposes very little in the way of export hints.
+signals (I think), and exposes very little in the way of export hints.
 
 When you compare the block above to the equivalent GdScript, you see there is a huge difference:
 ```gdscript
@@ -80,6 +81,6 @@ they are just mirroring GdNative's property interface and keeping it Rusty. Ther
 wrong with this method (in fact, it gives developers full functionallity), but it can be
 overwhelming when compared to GdScript or most other Godot-supported languages.
 
-Some developers may be torn between the saftey of Rust and the speed and conciseness of
+Some developers may be torn between the safety and speed of Rust and the development speed and conciseness of
 GdScript. This library attempts to take the best of both Rust and GdScript to enable concise,
 fast, and safe code for Godot.
