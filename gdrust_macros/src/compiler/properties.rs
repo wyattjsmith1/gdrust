@@ -1,8 +1,8 @@
 use proc_macro2::Ident;
-use syn::parse::{Parse, ParseBuffer, ParseStream, Result};
+use syn::parse::{Parse, ParseStream, Result};
 use syn::parse_macro_input::parse;
 use syn::punctuated::Punctuated;
-use syn::{parenthesized, token, AttributeArgs, Expr, Field, ItemStruct, Lit, LitStr, Token, Type};
+use syn::{parenthesized, token, Expr, Field, ItemStruct, Lit, LitStr, Token, Type};
 
 mod kw {
     syn::custom_keyword!(export);
@@ -204,8 +204,8 @@ impl Property {
 }
 
 struct DefaultProperty {
-    paren_token: token::Paren,
-    expr: Expr,
+    pub paren_token: token::Paren,
+    pub expr: Expr,
 }
 
 impl Parse for DefaultProperty {
@@ -217,6 +217,7 @@ impl Parse for DefaultProperty {
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub fn extract_properties(item: &mut ItemStruct) -> Vec<Property> {
     item.fields.iter_mut().map(|x| get_property(x)).collect()
 }
@@ -270,7 +271,7 @@ pub fn get_property(item: &mut Field) -> Property {
                 "export_multiline" => property.export_type = ExportType::ExportMultiline,
                 "export_exp_range" => {
                     let range = parse(tokens).expect("Invalid range on export_exp_range");
-                    property.export_type = ExportType::ExportRange(range);
+                    property.export_type = ExportType::ExportExpRange(range);
                 }
                 "export_color_no_alpha" => property.export_type = ExportType::ExportColorNoAlpha,
                 "export_flags" => {

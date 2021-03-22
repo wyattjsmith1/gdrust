@@ -1,7 +1,8 @@
-use syn::parse::{Parse, ParseStream, Parser};
+use syn::parse::{Parse, ParseStream};
 use syn::punctuated::Punctuated;
 use syn::{parenthesized, token, Expr, Ident, ItemStruct, Result, Token, Type};
 
+#[allow(clippy::module_name_repetitions)]
 pub fn extract_signals(item: &mut ItemStruct) -> Vec<SignalDecl> {
     let mut result = Vec::new();
     item.attrs = item
@@ -10,8 +11,8 @@ pub fn extract_signals(item: &mut ItemStruct) -> Vec<SignalDecl> {
         .filter(|attr| {
             attr.path
                 .get_ident()
-                .filter(|x| x.to_string() == "signal")
-                .map(|x| {
+                .filter(|x| *x == "signal")
+                .map(|_x| {
                     let tokens: proc_macro::TokenStream = attr.tokens.clone().into();
                     let signal = syn::parse_macro_input::parse::<SignalWithParens>(tokens)
                         .expect("Could not parse signal declaration")
@@ -26,19 +27,19 @@ pub fn extract_signals(item: &mut ItemStruct) -> Vec<SignalDecl> {
 }
 
 pub struct SignalWithParens {
-    paren_token: token::Paren,
-    signal: SignalDecl,
+    pub paren_token: token::Paren,
+    pub signal: SignalDecl,
 }
 
 pub struct SignalDecl {
     pub name: Ident,
-    paren_token: token::Paren,
+    pub paren_token: token::Paren,
     pub args: Punctuated<SignalArgDecl, Token![,]>,
 }
 
 pub struct SignalArgDecl {
     pub name: Ident,
-    colon: Token![:],
+    pub colon: Token![:],
     pub ty: Type,
     pub default: Option<(Token![=], Expr)>,
 }

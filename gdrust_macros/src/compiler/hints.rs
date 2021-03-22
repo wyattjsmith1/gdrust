@@ -3,7 +3,7 @@ use crate::compiler::properties::{
     ExportRange, ExportType,
 };
 use proc_macro2::TokenStream;
-use syn::{parse_quote, Lit, LitStr, Type};
+use syn::{parse_quote, Lit, Type};
 
 pub(crate) fn property_hint(export: &ExportType, ty: &Type) -> TokenStream {
     match export {

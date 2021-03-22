@@ -23,7 +23,7 @@
 //!
 //! Once `gdnative-rust` is installed, you can install `gdrust` by adding it as a dependency.
 //! Unfortunately, due to the way `gdnative-rust` macros work, you must have both `gdnative-rust`
-//! and `gdrust` added as dependencies, and you must choose compatible versions. See the
+//! and `gdrust` added as dependencies side-by-side, and you must choose compatible versions. See the
 //! "Compatibilty" section below.
 //! ```ignore
 //! [dependencies]
@@ -36,9 +36,11 @@
 //! use gdrust::macros::gdrust;
 //! use gdnative::api::Node;
 //!
-//! gdrust! {
-//!     class_name HelloWorld extends Node
-//!     @export var test: u64 = 10
+//! #[gdrust(extends = Node)]
+//! struct HelloWorld {
+//!     #[export]
+//!     #[default(10)]
+//!     test: u64,
 //! }
 //! ```
 //! That's it!
@@ -48,30 +50,21 @@
 //!
 //! # `gdrust!` Macro
 //!
-//! ## Exporting "`class`es"
-//! Rust doesn't have the concept of a "`class`", but Godot does. To make things a bit more GdScript
-//! friendly, regular class notation is used:
+//! ## Exporting properties and signals
+//! The `extends = {classname}` is optional, and may be omitted if you are just extending `Object`:
 //! ```
-//! gdrust::macros::gdrust! {
-//!     class_name ClassName extends gdnative::api::KinematicBody
-//!     // Same as `class_name ClassName extends KinematicBody` in GdScript.
-//! }
-//! ```
-//!
-//! The `extends Parent` is optional, and may be omitted if you are just extending `Object`:
-//! ```
-//! gdrust::macros::gdrust! {
-//!     class_name ClassName extends gdnative::api::KinematicBody
+//! #[gdrust]
+//! struct ClassName {
 //!     // Same as `class_name ClassName extends Object` in GdScript.
 //! }
 //! ```
 //!
-//! You can still have custom derives and attributes on your class. Any attributes on `class` will
+//! You can still have custom derives and attributes on your class. Any attributes on the `struct` will
 //! be added:
 //! ```
-//! gdrust::macros::gdrust! {
-//!     #[derive(Debug)]
-//!     class_name ClassName extends gdnative::api::KinematicBody
+//! #[gdrust::macros::gdrust]
+//! #[derive(Debug)]
+//! struct ClassName {
 //!     // `ClassName` will derive `Debug`
 //! }
 //! ```
@@ -81,10 +74,10 @@
 //! ```
 //!# use gdnative::prelude::*;
 //!# use gdnative::api::*;
-//!# gdrust::macros::gdrust! {
-//!#     #[derive(Debug)]
-//!#     class_name ClassName extends gdnative::api::KinematicBody
-//!# }
+//!# #[gdrust::macros::gdrust]
+//!# #[derive(Debug)]
+//!# struct ClassName;
+//!
 //! #[gdnative::methods]
 //! impl ClassName {
 //!     #[export]
@@ -96,30 +89,41 @@
 //!
 //! ## Exporting Properties
 //! The syntax for exporting properties is intended to mirror GdScript as closely as possible. Due
-//! to the upcoming 4.0 release, `gdrust` uses the [4.0 syntax](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_exports.html).
+//! to the upcoming 4.0 release, `gdrust` uses the [4.0 exports](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_exports.html).
 //! You can read all about the different types of exports there. Everything should be implemented as
 //! defined, except for the following:
 //!
-//! 1. `@no_export` can be used to not export a variable. This should be used for all Rust-native
+//! 1. `#[no_export]` can be used to not export a variable. This should be used for all Rust-native
 //! types (doesn't implement `Export`) or if you want the variable to be "private".
 //! 2. The 4.0 docs define `@export_node_path(Type1, Type2)` as a way to export a `NodePath` which
 //! only matches nodes with given types. This is partially implemented, but won't be finished until
 //! 4.0 because there is currently not export hint for NodePaths. You can currently include this
 //! export in your code, but it will allow a `NodePath` to any type.
-//! 3. Nullability is handled with an `Option`. This is required if you don't want to set a defualt
-//! value for a type (the default will be `None`).
-//! 4. Every `var` (exported or `@no_export`ed) will require both a type and a default value. There
-//! is no type inference. In the future, you may be able to use `Default` in place of setting a
-//! default. If you are referencing a Godot object and not a "primitive", this must be wrapped in a
-//! `Ref`.
+//! 3. Nullability is handled with an `Option`..
+//! 4. Every exported property will require both a type and a default value. If no default value is
+//! provided, `Default::default()` will be used. There
+//! is no type inference with the #[default(value)] annotation. If you are referencing a Godot
+//! object and not a "primitive", this must be wrapped in a `Ref`.
 //! 5. Currently, arrays are not supported. This is simply because I am not confident the syntax
 //! has been finalized. On Godot's site, it shows the traditional `export(Array, int) var ints = [1, 2, 3]`.
 //! I am guessing they will switch to some sort of `@export_array` style. Once that is finalized,
 //! adding it should be easy.
 //!
+//! ### Default
+//! You may set a custom default value using the `#[default(value)]` annotation. If it is not defined,
+//! `Default::default()` is used.
+//!
 //! ## Exporting Signals
 //! The syntax for exporting signals is also intended to mirror [GdScript](https://docs.godotengine.org/en/latest/getting_started/step_by_step/signals.html#custom-signals)
-//! as closely as possible. Similar to properties, there are a few gotchas with signals:
+//! as closely as possible. The syntax is:
+//! ```ignore
+//! #[signal(signal_name(arg_name: arg_type, arg2_name: arg_type = default_value))]
+//! #[signal(signal_name(arg_name: arg_type = default, arg2_name: arg_type = default_value))]
+//! #[gdrust]
+//! struct Class;
+//! ```
+//!
+//! Similar to properties, there are a few gotchas with signals:
 //!
 //! 1. Like properties, every signal must have a type. Unlike properties, the type must be one of:
 //!   - A [`VariantType`](https://docs.rs/gdnative/0.9.3/gdnative/core_types/enum.VariantType.html)
@@ -138,56 +142,131 @@
 //!use gdnative::{godot_init, Ref, TRef};
 //!use gdrust::macros::gdrust;
 //!
-//!gdrust! {
-//!    #[derive(Debug)]
-//!    class_name HelloWorld extends Node
-//!    @export var test_a: u8 = 10
-//!    @no_export var test_b: &'static str = "Test string"
-//!    var test_c: f32 = 10.0
-//!    @export_range(0.0, 10.0) var simple_range: f32 = 0.0
-//!    @export_range(0, 10, 2) var step_range: u8 = 2
-//!    @export_range(0, 10, "or_lesser") var simple_range_or_lesser: u64 = 10
-//!    @export_range(0.0, 10.0, 1.5, "or_lesser") var simple_range_step_or_lesser: f64 = 10.0
-//!    @export_range(0, 10, "or_greater") var simple_range_or_greater: u64 = 10
-//!    @export_range(0, 10, 10, "or_greater") var simple_range_step_or_greater: u64 = 10
-//!    @export_range(0, 10, 10, "or_lesser", "or_greater") var range_with_all: u64 = 10
-//!    @export var texture: Option<Ref<Texture>> = None
-//!    @export_enum("This", "is", "a", "test") var string_enum: String = "This".to_string()
-//!    @export_enum("This", "will", "be", "enum", "ordinals") var int_enum: u32 = 0
+//! #[gdrust2(extends = Node)]
+//! #[signal(my_signal(arg1: F64, arg2: GodotString = "test".to_string()))]
+//! #[signal(simple_signal(arg:I64))]
+//! #[derive(Debug)]
+//! struct HelloWorld {
+//!     #[export]
+//!     #[default(10)]
+//!     test_a: u8,
 //!
-//!    @export_file var file: String = "".to_string()
-//!    @export_file("*.png") var png_file: String = "".to_string()
+//!     #[no_export]
+//!     test_failure: u8,
 //!
-//!    @export_dir var dir: String = "".to_string()
-//!    @export_global_file("*.png") var glob_file: String = "".to_string()
-//!    @export_global_dir var glob_dir: String = "".to_string()
+//!     #[default(10.0)]
+//!     test_c: f32,
 //!
-//!    @export_multiline var multiline: String = "This is multiline text".to_string()
+//!     #[export_range(0.0, 10.0)]
+//!     simple_range: f32,
 //!
-//!    @export_exp_range(0.0, 10.0) var simple_exp_range: f32 = 0.0
-//!    @export_exp_range(0, 10, 2) var step_exp_range: u8 = 2
-//!    @export_exp_range(0, 10, "or_lesser") var simple_exp_range_or_lesser: u64 = 10
-//!    @export_exp_range(0.0, 10.0, 1.5, "or_lesser") var simple_exp_range_step_or_lesser: f64 = 10.0
-//!    @export_exp_range(0, 10, "or_greater") var simple_exp_range_or_greater: u64 = 10
-//!    @export_exp_range(0, 10, 10, "or_greater") var simple_exp_range_step_or_greater: u64 = 10
-//!    @export_exp_range(0, 10, 10, "or_lesser", "or_greater") var exp_range_with_all: u64 = 10
+//!     #[export_range(0, 10, 2)]
+//!     #[default(2)]
+//!     step_range: u8,
 //!
-//!    @export var color: Color = Color::rgba(0.0, 0.0, 0.0, 0.5)
-//!    @export_color_no_alpha var color_no_alpha: Color = Color::rgb(0.0, 0.0, 0.0)
+//!     #[export_range(0, 10, "or_lesser")]
+//!     #[default(10)]
+//!     simple_range_or_lesser: u64,
 //!
-//!    @export_flags("Fire", "Water", "Earth", "Wind") var spell_elements: u32 = 0
+//!     #[export_range(0.0, 10.0, 1.5, "or_lesser")]
+//!     #[default(10.0)]
+//!     simple_range_step_or_lesser: f64,
 //!
-//!    //TODO: NodePath types are only supported in 4.0
-//!    @export_node_path(KinematicBody, RigidBody) var physics_body: NodePath = NodePath::default()
+//!     #[export_range(0, 10, "or_greater")]
+//!     #[default(10)]
+//!     simple_range_or_greater: u64,
 //!
-//!    signal my_signal(int: I64, float: F64, tex: Texture)
-//!    signal typed_signal(bool: Bool = true, float: F64 = std::f64::consts::PI, tex: Texture)
+//!     #[export_range(0, 10, 10, "or_greater")]
+//!     #[default(10)]
+//!     simple_range_step_or_greater: u64,
 //!
-//!    @export_flags_2d_physics var layers_2d_physics: u32 = 0
-//!    @export_flags_2d_render var layers_2d_render: u32 = 0
-//!    @export_flags_3d_physics var layers_3d_physics: u32 = 0
-//!    @export_flags_3d_render var layers_3d_render: u32 = 0
-//!}
+//!     #[export_range(0, 10, 10, "or_lesser", "or_greater")]
+//!     #[default(10)]
+//!     range_with_all: u64,
+//!
+//!     #[export]
+//!     texture: Option<Ref<Texture>>,
+//!
+//!     #[export_enum("This", "is", "a", "test")]
+//!     #[default("This".to_string())]
+//!     string_enum: String,
+//!
+//!     #[export_enum("This", "will", "be", "enum", "ordinals")]
+//!     int_enum: u32,
+//!
+//!     #[export_file]
+//!     file: String,
+//!
+//!     #[export_file("*.png")]
+//!     png_file: String,
+//!
+//!     #[export_dir]
+//!     dir: String,
+//!
+//!     #[export_global_file("*.png")]
+//!     glob_file: String,
+//!
+//!     #[export_global_dir]
+//!     glob_dir: String,
+//!
+//!     #[export_multiline]
+//!     #[default("This\nis\nmultiline\ntext".to_string())]
+//!     multiline: String,
+//!
+//!     #[export_exp_range(0.0, 10.0)]
+//!     simple_exp_range: f32,
+//!
+//!     #[export_exp_range(0, 10, 2)]
+//!     #[default(2)]
+//!     step_exp_range: u8,
+//!
+//!     #[export_exp_range(0, 10, "or_lesser")]
+//!     #[default(10)]
+//!     simple_exp_range_or_lesser: u64,
+//!
+//!     #[export_exp_range(0.0, 10.0, 1.5, "or_lesser")]
+//!     #[default(10.0)]
+//!     simple_exp_range_step_or_lesser: f64,
+//!
+//!     #[export_exp_range(0, 10, "or_greater")]
+//!     #[default(10)]
+//!     simple_exp_range_or_greater: u64,
+//!
+//!     #[export_exp_range(0, 10, 10, "or_greater")]
+//!     #[default(10)]
+//!     simple_exp_range_step_or_greater: u64,
+//!
+//!     #[export_exp_range(0, 10, 10, "or_lesser", "or_greater")]
+//!     #[default(10)]
+//!     exp_range_with_all: u64,
+//!
+//!     #[export]
+//!     #[default(Color::rgba(0.0, 0.0, 0.0, 0.5))]
+//!     color: Color,
+//!
+//!     #[export_color_no_alpha]
+//!     #[default(Color::rgb(0.0, 0.0, 0.0))]
+//!     color_no_alpha: Color,
+//!
+//!     #[export_flags("Fire", "Water", "Earth", "Wind")]
+//!     spell_elements: u32,
+//!
+//!     //! TODO: NodePath types are only supported in 4.0
+//!     #[export_node_path(KinematicBody, RigidBody)]
+//!     physics_body: NodePath,
+//!
+//!     #[export_flags_2d_physics]
+//!     layers_2d_physics: u32,
+//!
+//!     #[export_flags_2d_render]
+//!     layers_2d_render: u32,
+//!
+//!     #[export_flags_3d_physics]
+//!     layers_3d_physics: u32,
+//!
+//!     #[export_flags_3d_render]
+//!     layers_3d_render: u32,
+//! }
 //!
 //! #[gdnative::methods]
 //! impl HelloWorld {
@@ -210,17 +289,10 @@
 //! property value and not having it reflected in code.
 //!
 //! ### Cons
-//! 1. No syntax highlighting or autocomplete. This is by far the biggest issue. Most IDEs don't
-//! understand macros as well as we would like. The code in the `gdscript` block, as well as any
-//! code it generates, will not have autocompletion or syntax highlighting. Hopefully rust's tools
-//! will get better over time to improve this.
-//! 2. Like many macros, when the input is correct, they work great. When the input is invalid,
+//! 1. Like many macros, when the input is correct, they work great. When the input is invalid,
 //! they give obscure error messages. I am trying to cover most of the common error cases with clear
-//! messages. If you see weird message, open an issue and I will help you out. In general, `@export`s
-//! with values require parens (`()`) and you should always use the same type of literals (all ints
-//! or all floats).
-//! 3. Not 100% gdscript. To meet the needs of Rust this has been designed to look closely like
-//! gdscript, but there a couple exceptions.
+//! messages. If you see weird message, open an issue and I will help you out. In general, `#[export*`s
+//! should always use the same type of literals (all ints or all floats).
 //!
 //! # Unsafe Functions
 //! One of the great things about rust is that it forces you to handle every possible case to ensure

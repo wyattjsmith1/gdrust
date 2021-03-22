@@ -4,15 +4,11 @@ mod properties;
 mod signal_args;
 mod signals;
 
-use crate::compiler::properties::{extract_properties, get_property, Property};
+use crate::compiler::properties::extract_properties;
 use crate::compiler::signals::extract_signals;
-use crate::parser::gdscript_var::GdScriptVar;
 use crate::Extends;
 use proc_macro2::TokenStream;
-use quote::ToTokens;
-use syn::parse::{Parse, ParseBuffer, ParseStream, Result};
-use syn::punctuated::Punctuated;
-use syn::{parenthesized, parse_quote, token, Expr, Field, Ident, ItemStruct, Token, Type};
+use syn::{parse_quote, ItemStruct};
 
 pub(crate) fn compile(item: &mut ItemStruct, extends: &Extends) -> TokenStream {
     let signals = extract_signals(item);
