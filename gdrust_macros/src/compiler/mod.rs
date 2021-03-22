@@ -1,41 +1,29 @@
-pub(crate) mod hints;
+mod hints;
 mod impl_block;
-mod signal_arg;
+mod properties;
+mod signal_args;
+mod signals;
 
-use crate::parser::gdscript_class::GdScriptClass;
+use crate::compiler::properties::extract_properties;
+use crate::compiler::signals::extract_signals;
+use crate::Extends;
 use proc_macro2::TokenStream;
+use syn::{parse_quote, ItemStruct};
 
-pub(crate) fn compile(parsed: &GdScriptClass) -> TokenStream {
-    let gd_struct = create_struct(parsed);
-    let gd_impl = impl_block::gd_impl(parsed);
-    quote::quote! {
-        #gd_struct
-        #gd_impl
-    }
-}
+pub(crate) fn compile(item: &mut ItemStruct, extends: &Extends) -> TokenStream {
+    let signals = extract_signals(item);
+    let properties = extract_properties(item);
+    let extends_type = &extends.ty;
+    item.attrs
+        .push(parse_quote! { #[derive(gdnative::NativeClass)] });
+    item.attrs.push(parse_quote! { #[inherit(#extends_type)]});
+    item.attrs
+        .push(parse_quote! { #[register_with(Self::__register_properties_and_signals)] });
 
-fn create_struct(class: &GdScriptClass) -> TokenStream {
-    let ident = &class.name;
-    let vars: Vec<TokenStream> = class
-        .vars()
-        .iter()
-        .map(|var| {
-            let ident = &var.var_name;
-            let ty = &var.ty;
-            quote::quote! {
-                #ident: #ty
-            }
-        })
-        .collect();
-    let parent = class.parent();
-    let attributes = class.attributes.iter();
+    let impl_block = impl_block::impl_block(&properties, &signals, extends, item);
     quote::quote! {
-        #(#attributes)*
-        #[derive(gdnative::NativeClass)]
-        #[inherit(#parent)]
-        #[register_with(Self::__register_properties_and_signals)]
-        pub struct #ident {
-            #(#vars,)*
-        }
+        #item
+
+        #impl_block
     }
 }

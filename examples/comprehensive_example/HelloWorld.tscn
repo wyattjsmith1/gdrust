@@ -22,23 +22,23 @@ func _ready():
 	assert(node.test_a == 10)
 	node.test_a = 1
 	assert(node.test_a == 1)
-	
+
 	assert(node.test_c == 10)
 	node.test_c = PI
 	assert_float_eq(node.test_c, PI)
-	
+
 	assert(node.simple_range == 0)
 	node.simple_range = 10.0
 	assert_float_eq(node.simple_range, 10)
-	
+
 	assert(node.texture == null)
 	node.texture = tex
 	assert(node.texture != null)
-	
+
 	assert(node.string_enum == \"This\")
 	node.string_enum = \"test\"
 	assert(node.string_enum == \"test\")
-	
+
 	assert(node.int_enum == 0)
 	node.int_enum = 4
 	assert(node.int_enum == 4)
@@ -66,7 +66,6 @@ func _on_HelloWorld_simple_signal(value: int):
 
 [node name="HelloWorld" type="Node" parent="."]
 script = SubResource( 1 )
-color = Color( 0, 0, 0, 0.501961 )
 
 [node name="Node" type="Node" parent="."]
 script = SubResource( 2 )

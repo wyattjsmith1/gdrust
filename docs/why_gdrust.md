@@ -72,8 +72,8 @@ extends Node
 signal tick_with_data(data)
 ```
 Again, GdScript is substantially more concise. At the bottom of the `gdrust` documentation is a
-sample script written using gdrust that is about 50 lines. When expanded and formatted, it
-expands to over 750 lines! That's almost 15x larger!!!
+sample script written using gdrust that is a little over 100 lines. When expanded and formatted, it
+expands to over 750 lines! That's almost 8x larger!!!
 
 So, why did `gdnative-rust` create this ridiculously verbose way of exporting properties? Well,
 they are just mirroring GdNative's property interface and keeping it Rusty. There is nothing
