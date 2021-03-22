@@ -19,5 +19,5 @@ experience".
 **Q**: Will this ever be merged with `gdnative-rust`?
 
 **A**: While I am open to the idea, I don't think it's the right direction for `gdnative-rust`.
-This macro defines code that is very unrust-like; that is the goal of this project.
+This project defines code that is either unsafe, or magic macros.
 `gdnative-rust` tends to focus more on the Rusty way to do things.
