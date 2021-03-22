@@ -108,7 +108,7 @@
 //! ```
 //! Becomes:
 //! ```ignore
-//! #[export_range(1, 10, 2, "or_greater)]
+//! #[export_range(1, 10, 2, "or_greater")]
 //! my_range: i32 // or i64 if you want
 //! ```
 //!
