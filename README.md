@@ -26,7 +26,7 @@ Once `gdnative-rust` is installed, you can install `gdrust` by adding it as a de
 Unfortunately, due to the way `gdnative-rust` macros work, you must have both `gdnative-rust`
 and `gdrust` added as dependencies side-by-side, and you must choose compatible versions. See the
 "Compatibilty" section below.
-```rust
+```toml
 [dependencies]
 gdnative = "0.9.3"
 gdrust = { git = "https://github.com/wyattjsmith1/gdrust.git" }
@@ -102,7 +102,7 @@ export. For example:
 ```
 Becomes:
 ```rust
-#[export_range(1, 10, 2, "or_greater)]
+#[export_range(1, 10, 2, "or_greater")]
 my_range: i32 // or i64 if you want
 ```
 
@@ -131,9 +131,9 @@ You may set a custom default value using the `#[default(value)]` annotation. If 
 The syntax for exporting signals is also intended to mirror [GdScript](https://docs.godotengine.org/en/latest/getting_started/step_by_step/signals.html#custom-signals)
 as closely as possible. The syntax is:
 ```rust
-#[signal(signal_name(arg_name: arg_type, arg2_name: arg_type = default_value))]
-#[signal(signal_name(arg_name: arg_type = default, arg2_name: arg_type = default_value))]
 #[gdrust]
+#[signal(signal_name(arg_name: I64, arg2_name: F64 = 10.0))]
+#[signal(other_signal(arg_name: Bool = true, arg2_name: GodotString = "default"))]
 struct Class;
 ```
 
@@ -288,7 +288,7 @@ struct HelloWorld {
 #[gdnative::methods]
 impl HelloWorld {
     #[export]
-    fn _ready(&self, _owner: TRef<Node>) {
+    fn _ready(&self, owner: TRef<Node>) {
         gdnative::godot_print!("Hello World!");
         gdnative::godot_dbg!(self);
         owner
@@ -320,7 +320,7 @@ One of the great things about rust is that it forces you to handle every possibl
 the runtime goes smoothly. One issue with this is game development is full of "well, I hope this
 works" cases in which error handling is ignored until runtime.
 
-For example, let's say you want to get a child node and call `start_emitting()` on it. In
+For example, let's say you want to get a child node and call `set_emitting()` on it. In
 `gdnative-rust`, you would do this:
 ```rust
 unsafe {
@@ -329,17 +329,17 @@ unsafe {
         .assume_safe()
         .cast::<Particles>()
         .unwrap()
-        .start_emitting();
+        .set_emitting(true);
 }
 ```
 Compare to GdStript (without the $ sugar):
-```rust
+```gdscript
 get_node("Particles").start_emitting()
 ```
 Yes, the static typing does cause some verbosity in the rust example, but this is still a lot.
 `gdrust` exposes a cleaner method:
 ```rust
-owner.expect_node::<Particles>().start_emitting()
+owner.expect_node::<Particles, _>("Particles").set_emitting(true)
 ```
 Not quite as concise as GdScript, but still more concise than `gdnative-rust`. One thing to note:
 this function almost literally translates to the code above. There is an explicit `unsafe` block,

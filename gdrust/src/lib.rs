@@ -25,7 +25,7 @@
 //! Unfortunately, due to the way `gdnative-rust` macros work, you must have both `gdnative-rust`
 //! and `gdrust` added as dependencies side-by-side, and you must choose compatible versions. See the
 //! "Compatibilty" section below.
-//! ```ignore
+//! ```toml
 //! [dependencies]
 //! gdnative = "0.9.3"
 //! gdrust = { git = "https://github.com/wyattjsmith1/gdrust.git" }
@@ -107,9 +107,12 @@
 //! @export_range(1, 10, 2, "or_greater") var my_range: int
 //! ```
 //! Becomes:
-//! ```ignore
+//! ```
+//!# #[gdrust::macros::gdrust]
+//!# pub struct Test {
 //! #[export_range(1, 10, 2, "or_greater")]
 //! my_range: i32 // or i64 if you want
+//!# }
 //! ```
 //!
 //! Everything should be implemented as defined in Godot's docs except for the following:
@@ -136,10 +139,11 @@
 //! ## Exporting Signals
 //! The syntax for exporting signals is also intended to mirror [GdScript](https://docs.godotengine.org/en/latest/getting_started/step_by_step/signals.html#custom-signals)
 //! as closely as possible. The syntax is:
-//! ```ignore
-//! #[signal(signal_name(arg_name: arg_type, arg2_name: arg_type = default_value))]
-//! #[signal(signal_name(arg_name: arg_type = default, arg2_name: arg_type = default_value))]
+//! ```
+//!# use gdrust::macros::gdrust;
 //! #[gdrust]
+//! #[signal(signal_name(arg_name: I64, arg2_name: F64 = 10.0))]
+//! #[signal(other_signal(arg_name: Bool = true, arg2_name: GodotString = "default"))]
 //! struct Class;
 //! ```
 //!
@@ -159,7 +163,7 @@
 //! ## Comprehensive Example
 //! This example should contain all possibilities for exporting properties and signals. It is used
 //! for testing as well.
-//! ```no_run
+//! ```
 //!use gdnative::api::{KinematicBody, Node, RigidBody, Texture};
 //!use gdnative::prelude::{Color, InitHandle, NodePath, ToVariant};
 //!use gdnative::{godot_init, Ref, TRef};
@@ -326,26 +330,33 @@
 //! the runtime goes smoothly. One issue with this is game development is full of "well, I hope this
 //! works" cases in which error handling is ignored until runtime.
 //!
-//! For example, let's say you want to get a child node and call `start_emitting()` on it. In
+//! For example, let's say you want to get a child node and call `set_emitting()` on it. In
 //! `gdnative-rust`, you would do this:
-//! ```ignore
+//! ```
+//!# use gdnative::api::Particles;
+//!# fn test(owner: gdnative::TRef<Particles>) {
 //! unsafe {
 //!     owner.get_node("Particles")
 //!         .unwrap()
 //!         .assume_safe()
 //!         .cast::<Particles>()
 //!         .unwrap()
-//!         .start_emitting();
+//!         .set_emitting(true);
 //! }
+//!# }
 //! ```
 //! Compare to GdStript (without the $ sugar):
-//! ```ignore
+//! ```gdscript
 //! get_node("Particles").start_emitting()
 //! ```
 //! Yes, the static typing does cause some verbosity in the rust example, but this is still a lot.
 //! `gdrust` exposes a cleaner method:
-//! ```ignore
-//! owner.expect_node::<Particles>().start_emitting()
+//! ```
+//!# use gdnative::api::Particles;
+//!# use gdrust::unsafe_functions::node_ext::NodeExt;
+//!# fn test(owner: gdnative::TRef<Particles>) {
+//! owner.expect_node::<Particles, _>("Particles").set_emitting(true)
+//!# }
 //! ```
 //! Not quite as concise as GdScript, but still more concise than `gdnative-rust`. One thing to note:
 //! this function almost literally translates to the code above. There is an explicit `unsafe` block,

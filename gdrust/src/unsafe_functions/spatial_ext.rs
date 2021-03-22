@@ -4,7 +4,12 @@ use gdnative::prelude::Basis;
 use gdnative::TRef;
 
 pub trait SpatialExt {
-    /// Sets the rotation of the Spatial. Similar to `spatial.global_transform.basis = basis`.
+    /// Sets the global rotation of the Spatial.
+    ///
+    /// # GdScript Equivalent
+    /// ```gdscript
+    /// spatial.global_transform.basis = basis
+    /// ```
     fn set_global_rotation(&self, basis: Basis);
 }
 
