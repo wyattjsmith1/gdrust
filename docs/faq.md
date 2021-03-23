@@ -1,11 +1,3 @@
-## FAQ
-**Q**: Will this be pushed to [`crates.io`](crates.io)?
-
-**A**: Eventually, yes. Right now, I am still in the early testing phase. If this turns out to
-be useful to others and of beta quality, I will definitely push it to `crates.io`.
-
----
-
 **Q**: Will this replace `gdnative-rust` in my project?
 
 **A**: gdrust rides on top of gdnative, so you will need both side-by-side. Additionally, this
