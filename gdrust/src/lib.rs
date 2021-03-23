@@ -1,8 +1,8 @@
 #![allow(clippy::doc_markdown)]
 //! [![Rust](https://github.com/wyattjsmith1/gdrust/actions/workflows/rust.yml/badge.svg?branch=master&event=push)](https://github.com/wyattjsmith1/gdrust/actions/workflows/rust.yml)
-//! ![Crates.io](https://img.shields.io/crates/v/gdrust)
-//! ![docs.rs](https://img.shields.io/docsrs/gdrust)
-//! ![Crates.io](https://img.shields.io/crates/l/gdrust)
+//! [![Crates.io](https://img.shields.io/crates/v/gdrust)](https://crates.io/crates/gdrust)
+//! [![docs.rs](https://img.shields.io/docsrs/gdrust)](https://docs.rs/gdrust/latest/gdrust/)
+//! [![Crates.io](https://img.shields.io/crates/l/gdrust)](https://github.com/wyattjsmith1/gdrust/blob/master/LICENSE.md)
 //!
 //! A library for making [`gdnative-rust`](https://github.com/godot-rust/godot-rust) a bit more
 //! GdScript-like. This contains two main parts:
