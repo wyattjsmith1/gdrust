@@ -19,6 +19,6 @@ categories = [
 
 [dependencies]
 gdnative = "0.9"
-gdrust_macros = { path = "../gdrust_macros" }
+gdrust_macros = { path = "../gdrust_macros", version = "=0.1.0" }
 euclid = "0.22"
 num-traits = "0.2"
