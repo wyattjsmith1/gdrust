@@ -2,10 +2,13 @@
 //! `gdnative-rust`'s memory model and read the documentation on these methods. These methods are
 //! only really unsafe if you don't understand what they are doing.
 
+pub mod node2_ext;
 pub mod node_ext;
 pub mod option_ext;
 pub mod result_ext;
 pub mod spatial_ext;
+pub mod vector2_ext;
+pub mod vector3_ext;
 
 /// Same functionality as `panic!()`, but also outputs to the godot output.
 #[macro_export]
