@@ -38,6 +38,7 @@ pub trait Node2DExt {
     fn right(&self) -> Vector2;
 }
 
+#[allow(clippy::cast_possible_truncation)]
 impl<'a, Class: SubClass<Node2D>> Node2DExt for TRef<'a, Class> {
     fn global_up(&self) -> Vector2 {
         Vector2::up().rotated(Angle::radians(self.upcast::<Node2D>().rotation() as f32))
