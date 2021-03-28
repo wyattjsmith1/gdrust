@@ -4,6 +4,7 @@
 
 pub mod node2_ext;
 pub mod node_ext;
+pub mod object_ext;
 pub mod option_ext;
 pub mod result_ext;
 pub mod spatial_ext;
