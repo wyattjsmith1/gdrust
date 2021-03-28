@@ -12,7 +12,7 @@ pub enum TryAsError {
     Instance,
 }
 
-pub trait ObjectExt<'a, A: ThreadAccess> {
+pub trait ObjectExt<'a, A: ThreadAccess, Class: SubClass<Object>> {
     /// Tries to cast a given node as `T`. Returns `Ok` with the `RefInstance` if found. Returns `Err`
     /// if it was unable to get the `RefInstance`:
     /// # Errors
@@ -20,7 +20,7 @@ pub trait ObjectExt<'a, A: ThreadAccess> {
     /// `TryAsError::Instance`: If the given node does not have the correct script attached.
     fn try_as_instance<T: NativeClass>(self) -> Result<RefInstance<'a, T, A>, TryAsError>
     where
-        <T as NativeClass>::Base: SubClass<gdnative::prelude::Object>;
+        <T as NativeClass>::Base: SubClass<Class>;
 
     /// Expects the passed in node has the `T` script attached. Panics if not. Same as `try_as_instance`
     /// but panics on `Err`
@@ -28,13 +28,13 @@ pub trait ObjectExt<'a, A: ThreadAccess> {
     /// If either the given node is not the correct type for the script, or the given node does not have the correct script attached
     fn expect_as_instance<T: NativeClass>(self) -> RefInstance<'a, T, A>
     where
-        <T as NativeClass>::Base: SubClass<gdnative::prelude::Object>;
+        <T as NativeClass>::Base: SubClass<Class>;
 }
 
-impl<'a, A: ThreadAccess> ObjectExt<'a, A> for TRef<'a, Object, A> {
+impl<'a, A: ThreadAccess, Class: SubClass<Object>> ObjectExt<'a, A, Class> for TRef<'a, Class, A> {
     fn try_as_instance<T: NativeClass>(self) -> Result<RefInstance<'a, T, A>, TryAsError>
     where
-        <T as NativeClass>::Base: SubClass<gdnative::prelude::Object>,
+        <T as NativeClass>::Base: SubClass<Class>,
     {
         self.cast::<<T as NativeClass>::Base>()
             .ok_or(TryAsError::Cast)
@@ -43,7 +43,7 @@ impl<'a, A: ThreadAccess> ObjectExt<'a, A> for TRef<'a, Object, A> {
 
     fn expect_as_instance<T: NativeClass>(self) -> RefInstance<'a, T, A>
     where
-        <T as NativeClass>::Base: SubClass<gdnative::prelude::Object>,
+        <T as NativeClass>::Base: SubClass<Class>,
     {
         match self.try_as_instance() {
             Ok(x) => x,
