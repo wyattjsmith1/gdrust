@@ -110,7 +110,7 @@ fn signal_consts(signals: &[SignalDecl]) -> Vec<TokenStream> {
                 Span::call_site(),
             );
             quote::quote! {
-                const #name: &'static str = #name_str;
+                pub const #name: &'static str = #name_str;
             }
         })
         .collect()
