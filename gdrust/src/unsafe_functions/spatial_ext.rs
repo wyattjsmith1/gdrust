@@ -5,6 +5,22 @@ use gdnative::prelude::{Basis, Vector3};
 use gdnative::TRef;
 
 pub trait SpatialExt {
+    /// Sets the local rotation of the Spatial.
+    ///
+    /// # GdScript Equivalent
+    /// ```gdscript
+    /// spatial.transform.basis = basis
+    /// ```
+    fn set_local_rotation(&self, basis: Basis);
+
+    /// Sets the local origin of the Spatial.
+    ///
+    /// # GdScript Equivalent
+    /// ```gdscript
+    /// spatial.transform.origin = origin
+    /// ```
+    fn set_local_origin(&self, origin: Vector3);
+
     /// Sets the global rotation of the Spatial.
     ///
     /// # GdScript Equivalent
@@ -12,6 +28,14 @@ pub trait SpatialExt {
     /// spatial.global_transform.basis = basis
     /// ```
     fn set_global_rotation(&self, basis: Basis);
+
+    /// Sets the global origin of the Spatial.
+    ///
+    /// # GdScript Equivalent
+    /// ```gdscript
+    /// spatial.global_transform.origin = origin
+    /// ```
+    fn set_global_origin(&self, origin: Vector3);
 
     /// Returns the unit vector representing the direction the `Spatial` is facing. Godot has some
     /// [ambiguity](https://github.com/godotengine/godot/issues/15283) regarding the forward vector,
@@ -66,10 +90,31 @@ pub trait SpatialExt {
 }
 
 impl<'a, Class: SubClass<Spatial>> SpatialExt for TRef<'a, Class> {
-    fn set_global_rotation(&self, rotation: Basis) {
+    fn set_local_rotation(&self, basis: Basis) {
+        let spatial = self.upcast::<Spatial>();
+        let mut transform = spatial.transform();
+        transform.basis = basis;
+        spatial.set_transform(transform);
+    }
+
+    fn set_local_origin(&self, origin: Vector3) {
+        let spatial = self.upcast::<Spatial>();
+        let mut transform = spatial.transform();
+        transform.origin = origin;
+        spatial.set_transform(transform);
+    }
+
+    fn set_global_rotation(&self, basis: Basis) {
         let spatial = self.upcast::<Spatial>();
         let mut transform = spatial.global_transform();
-        transform.basis = rotation;
+        transform.basis = basis;
+        spatial.set_global_transform(transform);
+    }
+
+    fn set_global_origin(&self, origin: Vector3) {
+        let spatial = self.upcast::<Spatial>();
+        let mut transform = spatial.global_transform();
+        transform.origin = origin;
         spatial.set_global_transform(transform);
     }
 
