@@ -24,11 +24,8 @@ impl ResourceLoaderExt for ResourceLoader {
         path: impl Into<GodotString>,
     ) -> Result<Ref<PackedScene>, LoadSceneErr> {
         self.load(path.into(), "", false)
-            .ok_or_else(|| LoadSceneErr::NoSuchScene)
-            .and_then(|x| {
-                x.cast::<PackedScene>()
-                    .ok_or_else(|| LoadSceneErr::NotAScene)
-            })
+            .ok_or(LoadSceneErr::NoSuchScene)
+            .and_then(|x| x.cast::<PackedScene>().ok_or(LoadSceneErr::NotAScene))
     }
 
     fn expect_load_scene(&self, path: impl Into<GodotString>) -> Ref<PackedScene> {
