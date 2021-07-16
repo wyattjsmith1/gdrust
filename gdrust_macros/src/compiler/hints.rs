@@ -3,7 +3,7 @@ use crate::compiler::properties::{
     ExportRange, ExportType,
 };
 use proc_macro2::TokenStream;
-use syn::{parse_quote, Lit, Type};
+use syn::{parse_quote, Lit, Type, Expr, ExprUnary, UnOp, ExprLit};
 
 pub(crate) fn property_hint(export: &ExportType, ty: &Type) -> TokenStream {
     match export {
@@ -31,7 +31,7 @@ pub(crate) fn property_hint(export: &ExportType, ty: &Type) -> TokenStream {
 
 fn export_exp_range_hint(range: &ExportExpRange, ty: &Type) -> TokenStream {
     export_range_hint_helper(
-        range.range.iter().collect::<Vec<&Lit>>().as_slice(),
+        range.range.iter().collect::<Vec<&Expr>>().as_slice(),
         ty,
         true,
     )
@@ -39,13 +39,13 @@ fn export_exp_range_hint(range: &ExportExpRange, ty: &Type) -> TokenStream {
 
 fn export_range_hint(range: &ExportRange, ty: &Type) -> TokenStream {
     export_range_hint_helper(
-        range.range.iter().collect::<Vec<&Lit>>().as_slice(),
+        range.range.iter().collect::<Vec<&Expr>>().as_slice(),
         ty,
         false,
     )
 }
 
-fn export_range_hint_helper(range: &[&Lit], ty: &Type, is_exp: bool) -> TokenStream {
+fn export_range_hint_helper(range: &[&Expr], ty: &Type, is_exp: bool) -> TokenStream {
     assert!(is_number(ty), "Export range must be a number (int, float)");
     assert!(
         range.len() >= 2,
@@ -56,19 +56,23 @@ fn export_range_hint_helper(range: &[&Lit], ty: &Type, is_exp: bool) -> TokenStr
     let mut step = TokenStream::default();
     let mut or_lesser = TokenStream::default();
     let mut or_greater = TokenStream::default();
-    let mut current_index = 2;
-    while current_index < range.len() {
-        match &range[current_index] {
-            Lit::Int(int) => step = quote::quote! { .with_step(#int)},
-            Lit::Float(float) => step = quote::quote! { .with_step(#float)},
-            Lit::Str(str) => match str.value().as_str() {
-                "or_lesser" => or_lesser = quote::quote! { .or_lesser() },
-                "or_greater" => or_greater = quote::quote! { .or_greater() },
-                _ => panic!("Unexpected string literal. Expected \"or_lesser\" or \"or_greater\""),
-            },
-            _ => panic!("Unexpected item in range: {:?}", &range[current_index]),
-        }
-        current_index += 1;
+    for expr in range.into_iter().skip(2){
+        match expr{
+            Expr::Lit(ExprLit{lit, ..}) => match lit {
+                Lit::Str(str) => match str.value().as_str() {
+                    "or_lesser" => or_lesser = quote::quote! { .or_lesser() },
+                    "or_greater" => or_greater = quote::quote! { .or_greater() },
+                    _ => panic!("Unexpected string literal. Expected \"or_lesser\" or \"or_greater\""),
+                },
+                _ => step = quote::quote! { .with_step(#lit)}
+            }
+            Expr::Unary(unary) => match unary {
+                ExprUnary { op: UnOp::Neg(_), .. } => step = quote::quote! { .with_step(#unary)},
+                _ => panic!("Unexpected operator")
+            }
+            ,
+            _ => panic!("Unexpected item in range: {:?}", expr),
+    }
     }
     let range_type = if is_exp {
         quote::quote! { ExpRange }

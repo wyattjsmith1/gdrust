@@ -2,7 +2,7 @@ use proc_macro2::{Ident};
 use syn::parse::{Parse, ParseStream, Result};
 use syn::parse_macro_input::parse;
 use syn::punctuated::Punctuated;
-use syn::{parenthesized, token, Expr, Field, ItemStruct, Lit, LitStr, Token, Type, ExprPath};
+use syn::{parenthesized, token, Expr, Field, ItemStruct, LitStr, Token, Type, ExprPath};
 
 mod kw {
     syn::custom_keyword!(export);
@@ -55,14 +55,14 @@ pub enum ExportType {
 #[derive(Clone)]
 pub struct ExportRange {
     pub paren_token: token::Paren,
-    pub range: Punctuated<Lit, Token![,]>,
+    pub range: Punctuated<Expr, Token![,]>,
 }
 
 impl Parse for ExportRange {
     fn parse(input: ParseStream) -> Result<Self> {
         let content;
         let paren_token = parenthesized!(content in input);
-        let range = content.parse_terminated(Lit::parse)?;
+        let range = content.parse_terminated(Expr::parse)?;
         Ok(Self { paren_token, range })
     }
 }
@@ -70,14 +70,14 @@ impl Parse for ExportRange {
 #[derive(Clone)]
 pub struct ExportExpRange {
     pub paren_token: token::Paren,
-    pub range: Punctuated<Lit, Token![,]>,
+    pub range: Punctuated<Expr, Token![,]>,
 }
 
 impl Parse for ExportExpRange {
     fn parse(input: ParseStream) -> Result<Self> {
         let content;
         let paren_token = parenthesized!(content in input);
-        let range = content.parse_terminated(Lit::parse)?;
+        let range = content.parse_terminated(Expr::parse)?;
         Ok(Self { paren_token, range })
     }
 }
@@ -311,7 +311,7 @@ pub fn get_property(item: &mut Field) -> Property {
                     property.export_type = ExportType::ExportRange(range);
                 }
                 "export_enum" => {
-                    let export_enum = parse::<ExportEnum>(tokens).expect("Invalid exportenum");
+                    let export_enum = parse::<ExportEnum>(tokens).expect("Invalid export_enum");
                     property.export_type = ExportType::ExportEnum(export_enum);
                 }
                 "export_file" => {

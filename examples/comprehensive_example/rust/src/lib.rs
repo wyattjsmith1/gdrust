@@ -31,19 +31,19 @@ struct HelloWorld {
     #[setget(Self::set_test, Self::get_test)]
     test_setget: bool,
 
-    #[export_range(0.0, 10.0)]
+    #[export_range((-10.0), 10.0)]
     simple_range: f32,
 
-    #[export_range(0, 10, 2)]
+    #[export_range(10, 10, 2)]
     #[default(2)]
     step_range: u8,
 
     #[export_range(0, 10, "or_lesser")]
     #[default(10)]
-    simple_range_or_lesser: u64,
+    simple_range_or_lesser: i32,
 
-    #[export_range(0.0, 10.0, 1.5, "or_lesser")]
-    #[default(10.0)]
+    #[export_range(10.0, 10.0, 1.5, "or_lesser")]
+    #[default(-10.0)]
     simple_range_step_or_lesser: f64,
 
     #[export_range(0, 10, "or_greater")]
