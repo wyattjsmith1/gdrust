@@ -34,7 +34,7 @@ struct HelloWorld {
     #[export_range((-10.0), 10.0)]
     simple_range: f32,
 
-    #[export_range(10, 10, 2)]
+    #[export_range(0, 10, 2)]
     #[default(2)]
     step_range: u8,
 
