@@ -8,6 +8,7 @@ use gdrust::macros::gdrust;
 #[signal(simple_signal(arg:I64))]
 #[derive(Debug)]
 struct HelloWorld {
+    
     #[export]
     #[default(10)]
     test_a: u8,
@@ -18,7 +19,19 @@ struct HelloWorld {
     #[default(10.0)]
     test_c: f32,
 
-    #[export_range(0.0, 10.0)]
+    #[export]
+    #[set(Self::set_test)]
+    test_set: bool,
+    
+    #[export]
+    #[get(Self::get_test)]
+    test_get: bool,
+
+    #[export]
+    #[setget(Self::set_test, Self::get_test)]
+    test_setget: bool,
+
+    #[export_range((-10.0), 10.0)]
     simple_range: f32,
 
     #[export_range(0, 10, 2)]
@@ -27,10 +40,10 @@ struct HelloWorld {
 
     #[export_range(0, 10, "or_lesser")]
     #[default(10)]
-    simple_range_or_lesser: u64,
+    simple_range_or_lesser: i32,
 
-    #[export_range(0.0, 10.0, 1.5, "or_lesser")]
-    #[default(10.0)]
+    #[export_range(10.0, 10.0, 1.5, "or_lesser")]
+    #[default(-10.0)]
     simple_range_step_or_lesser: f64,
 
     #[export_range(0, 10, "or_greater")]
@@ -131,6 +144,14 @@ struct HelloWorld {
 
 #[gdnative::methods]
 impl HelloWorld {
+    #[export]
+    fn set_test(&mut self, owner: TRef<Node>, _val: bool){
+        gdnative::godot_print!("tested set on {:#?}!", owner.get_path());
+    }
+    fn get_test(&self, owner: TRef<Node>) -> &bool{
+        gdnative::godot_print!("tested get on {:#?}!", owner.get_path());
+        &(self.test_get)
+    }
     #[export]
     fn _ready(&self, owner: TRef<Node>) {
         gdnative::godot_print!("Hello World!");
