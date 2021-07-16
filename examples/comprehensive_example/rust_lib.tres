@@ -2,7 +2,8 @@
 
 [resource]
 entry/OSX.64 = "res://../../target/debug/librust.dylib"
-dependency/OSX.64 = [  ]
-
 entry/Windows.64 = "res://../../target/debug/rust.dll"
+entry/X11.64 = "res://../../target/debug/librust.so"
+dependency/OSX.64 = [  ]
 dependency/Windows.64 = [  ]
+dependency/X11.64 = [  ]

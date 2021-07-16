@@ -6,6 +6,7 @@ use crate::Extends;
 use heck::ShoutySnakeCase;
 use proc_macro2::{Ident, Span, TokenStream};
 use syn::{Expr, ItemStruct};
+use crate::compiler::setgets::{property_setter, property_getter};
 
 pub(crate) fn impl_block(
     properties: &[Property],
@@ -70,12 +71,12 @@ fn builder_for_property(property: &Property) -> TokenStream {
     let default = &property.default;
     let ident_str = ident.to_string();
     let hint = property_hint(&property.export_type, &property.ty);
-    let setter = quote::quote! { .with_setter(|this, _owner, val| {
-        this.#ident = val
-    })};
-    let getter = quote::quote! { .with_ref_getter(|this, _owner| {
-        &this.#ident
-    })};
+
+
+    
+    
+    let setter = property_setter(&property.setget, ident);
+    let getter = property_getter(&property.setget, ident);
     let default = get_default(default.as_ref());
     quote::quote! {
         builder.add_property::<#ty>(#ident_str)

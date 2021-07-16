@@ -1,8 +1,8 @@
-use proc_macro2::Ident;
+use proc_macro2::{Ident};
 use syn::parse::{Parse, ParseStream, Result};
 use syn::parse_macro_input::parse;
 use syn::punctuated::Punctuated;
-use syn::{parenthesized, token, Expr, Field, ItemStruct, Lit, LitStr, Token, Type};
+use syn::{parenthesized, token, Expr, Field, ItemStruct, Lit, LitStr, Token, Type, ExprPath};
 
 mod kw {
     syn::custom_keyword!(export);
@@ -25,6 +25,9 @@ mod kw {
     syn::custom_keyword!(export_flags_2d_render);
     syn::custom_keyword!(export_flags_3d_physics);
     syn::custom_keyword!(export_flags_3d_render);
+    syn::custom_keyword!(setget);
+    syn::custom_keyword!(set);
+    syn::custom_keyword!(get);
 }
 
 #[derive(Clone)]
@@ -185,10 +188,62 @@ impl Parse for ExportFlags {
     }
 }
 
+#[derive(Clone)]
+pub enum SetGet {
+    NoSetGet,
+    Set(SetGetMethod),
+    Get(SetGetMethod),
+    SetGet(SetGetMethods),
+}
+
+#[derive(Clone)]
+pub struct SetGetMethod {
+    pub paren_token: token::Paren,
+    pub method: ExprPath,
+}
+
+impl Parse for SetGetMethod {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let content;
+        let paren_token = parenthesized!(content in input);
+        let method = content.parse()?;
+        Ok(Self {
+            paren_token,
+            method,
+        })
+    }
+}
+
+#[derive(Clone)]
+pub struct SetGetMethods {
+    pub paren_token: token::Paren,
+    pub setter: ExprPath,
+    pub comma: Token![,],
+    pub getter: ExprPath,
+}
+
+impl Parse for SetGetMethods {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let content;
+        let paren_token = parenthesized!(content in input);
+        let setter = content.parse()?;
+        let comma = content.parse()?;
+        let getter = content.parse()?;
+        
+        Ok(Self {
+            paren_token,
+            setter,
+            comma,
+            getter
+        })
+    }
+}
+
 pub struct Property {
     pub name: Ident,
     pub ty: Type,
     pub export_type: ExportType,
+    pub setget: SetGet,
     pub default: Option<Expr>,
 }
 
@@ -198,6 +253,7 @@ impl Property {
             name,
             ty,
             export_type: ExportType::NoHint,
+            setget: SetGet::NoSetGet,
             default: None,
         }
     }
@@ -290,7 +346,19 @@ pub fn get_property(item: &mut Field) -> Property {
                     property.export_type = ExportType::ExportFlags3dPhysics
                 }
                 "export_flags_3d_render" => property.export_type = ExportType::ExportFlags3dRender,
+                "set" => match property.setget.clone() {
+                    SetGet::Get(getter) => property.setget = SetGet::SetGet(SetGetMethods{ paren_token: Default::default(), setter: parse(tokens).expect("Invalid setter"), comma: Default::default(), getter: getter.method }),
+                    SetGet::SetGet(SetGetMethods{getter, ..}) => property.setget = SetGet::SetGet(SetGetMethods{ paren_token: Default::default(), setter: parse(tokens).expect("Invalid setter"), comma: Default::default(), getter }),
+                    _ => property.setget = SetGet::Set(parse(tokens).expect("Invalid setter"))
+                },
+                "get" => match property.setget.clone() {
+                    SetGet::Set(setter) => property.setget = SetGet::SetGet(SetGetMethods{ paren_token: Default::default(), getter: parse(tokens).expect("Invalid getter"), comma: Default::default(), setter: setter.method }),
+                    SetGet::SetGet(SetGetMethods{setter, ..}) => property.setget = SetGet::SetGet(SetGetMethods{ paren_token: Default::default(), getter: parse(tokens).expect("Invalid getter"), comma: Default::default(), setter}),
+                    _ => property.setget = SetGet::Get(parse(tokens).expect("Invalid getter"))
+                },
+                "setget" => property.setget = SetGet::SetGet(parse(tokens).expect("Invalid args for setget")),
                 _ => should_filter = true,
+
             }
             should_filter
         })

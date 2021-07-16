@@ -3,6 +3,7 @@ mod impl_block;
 mod properties;
 mod signal_args;
 mod signals;
+mod setgets;
 
 use crate::compiler::properties::extract_properties;
 use crate::compiler::signals::extract_signals;

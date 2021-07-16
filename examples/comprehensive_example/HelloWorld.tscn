@@ -70,4 +70,3 @@ script = SubResource( 1 )
 [node name="Node" type="Node" parent="."]
 script = SubResource( 2 )
 tex = ExtResource( 2 )
-[connection signal="simple_signal" from="HelloWorld" to="Node" method="_on_HelloWorld_simple_signal"]
