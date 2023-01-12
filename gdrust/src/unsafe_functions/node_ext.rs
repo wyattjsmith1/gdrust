@@ -45,7 +45,7 @@ impl<'a, T: SubClass<Node>> NodeExt for TRef<'a, T> {
     fn expect_node<Child: SubClass<Node>, P: Into<NodePath>>(
         &self,
         path: P,
-    ) -> TRef<'a, Child, Shared> {
+    ) -> TRef<'_, Child, Shared> {
         let path = path.into();
         unsafe {
             self.upcast()
@@ -59,7 +59,7 @@ impl<'a, T: SubClass<Node>> NodeExt for TRef<'a, T> {
         }
     }
 
-    fn expect_parent<Child: SubClass<Node>>(&self) -> TRef<'a, Child, Shared> {
+    fn expect_parent<Child: SubClass<Node>>(&self) -> TRef<'_, Child, Shared> {
         unsafe {
             self.upcast()
                 .get_parent()
